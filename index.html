@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>Стандарты продаж СМБ — ДВИС</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand" role="button" tabindex="0" data-nav="home" aria-label="На главную">
+        <div class="brand-mark"><span>1С</span></div>
+        <div class="brand-text"><strong>Стандарты продаж</strong><span>Портал ДВИС · СМБ</span></div>
+      </div>
+      <div class="side-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
+      <nav class="side-nav" aria-label="Основное меню">
+        <button class="side-link active" data-nav="home"><span class="ico" data-icon="house"></span><span>Главная</span></button>
+        <button class="side-link" data-nav="catalog"><span class="ico" data-icon="book"></span><span>Стандарты</span><span class="side-count">18</span></button>
+        <button class="side-link" data-nav="scenarios"><span class="ico" data-icon="route"></span><span>Что мне делать?</span></button>
+        <button class="side-link" data-nav="cases"><span class="ico" data-icon="puzzle"></span><span>Практические кейсы</span></button>
+        <button class="side-link" data-nav="glossary"><span class="ico" data-icon="layers"></span><span>Глоссарий</span></button>
+        <button class="side-link" data-nav="quiz"><span class="ico" data-icon="graduation"></span><span>Проверка знаний</span></button>
+      </nav>
+      <div class="side-label side-label-secondary">ДЛЯ РУКОВОДИТЕЛЕЙ</div>
+      <nav class="side-nav"><button class="side-link" data-nav="control"><span class="ico" data-icon="shield"></span><span>Контроль и качество</span></button></nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-bottom">
+        <div class="progress-heading"><span>Личный прогресс</span><strong id="side-progress">0/6</strong></div>
+        <div class="progress-track"><div id="side-progress-bar"></div></div>
+        <p>Отмечайте изученные стандарты — прогресс сохранится в этом браузере.</p>
+        <div class="side-footer">ПРОТОТИП · 03.11.2026 <span class="footer-dot"></span> v0.2</div>
+      </div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar">
+        <button id="mobile-menu" class="icon-button mobile-menu" aria-label="Открыть меню"><span class="ico" data-icon="menu"></span></button>
+        <div class="breadcrumbs"><span>Портал стандартов</span><span class="crumb-sep">/</span><strong id="breadcrumb">Главная</strong></div>
+        <div class="topbar-right">
+          <button class="top-search" data-nav="search"><span class="ico" data-icon="search"></span><span>Найти стандарт, термин, ситуацию...</span><kbd>Ctrl K</kbd></button>
+          <span class="top-divider"></span>
+          <div class="role-picker"><label for="role-select">Роль</label><select id="role-select"><option value="employee">Сотрудник ОП</option><option value="dispatcher">Диспетчер</option><option value="manager">РОП</option><option value="controller">Контролёр</option></select></div>
+          <div class="avatar" title="Локальный прототип">ДВ</div>
+        </div>
+      </header>
+      <main id="view" tabindex="-1"></main>
+      <footer class="app-footer">Памятки и алгоритмы носят справочный характер. При расхождениях используйте актуальную согласованную редакцию стандарта. <a href="#sources" data-nav="sources">Источники</a></footer>
+    </div>
+    <div id="overlay-root"></div>
+  </div>
+  
+  
+  
+<script src="assets/data.js" defer></script>
+<script src="assets/tests.js" defer></script>
+<script src="assets/app.js" defer></script>
+</body>
+</html>
