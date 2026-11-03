@@ -68,5 +68,5 @@ for (const [from, destination] of copies) {
 await mkdir(new URL('media/videos/', root), { recursive: true });
 for (const [from, to] of copies) await copyFile(from, fileURLToPath(new URL(to, root)));
 catalog.push(video);
-await writeFile(catalogPath, `// Общие видеокейсы ГК «1С-Рарус».\nwindow.PORTAL_VIDEOS = ${JSON.stringify(catalog, null, 2)};\n`);
+await writeFile(catalogPath, `// Общие видеокейсы СМБ «1С-Рарус».\nwindow.PORTAL_VIDEOS = ${JSON.stringify(catalog, null, 2)};\n`);
 console.log(`Added ${video.id}. Run npm test and npm run build, then commit and push the catalog and media files.`);

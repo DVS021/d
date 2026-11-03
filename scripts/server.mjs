@@ -14,6 +14,7 @@ const allowedFiles = new Map([
   ['/assets/app.js', ['assets/app.js', 'text/javascript; charset=utf-8']],
   ['/assets/videos.js', ['assets/videos.js', 'text/javascript; charset=utf-8']],
   ['/assets/video-utils.js', ['assets/video-utils.js', 'text/javascript; charset=utf-8']],
+  ['/assets/rarus-logo.png', ['assets/rarus-logo.png', 'image/png']],
 ]);
 
 const mediaTypes = { mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',

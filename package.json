@@ -2,7 +2,7 @@
   "name": "rarus-sales-standards",
   "version": "0.2.0",
   "private": true,
-  "description": "Внутренний справочный портал стандартов продаж ГК 1С-Рарус",
+  "description": "Внутренний справочный портал стандартов продаж СМБ 1С-Рарус",
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {

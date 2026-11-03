@@ -32,7 +32,9 @@ const app = await readFile(new URL('assets/app.js', root), 'utf8');
 const tests = await readFile(new URL('assets/tests.js', root), 'utf8');
 const videos = await readFile(new URL('assets/videos.js', root), 'utf8');
 const videoUtils = await readFile(new URL('assets/video-utils.js', root), 'utf8');
+const logo = (await readFile(new URL('assets/rarus-logo.png', root))).toString('base64');
 const standalone = html
+  .replace('src="assets/rarus-logo.png"', () => `src="data:image/png;base64,${logo}"`)
   .replace('<link rel="stylesheet" href="assets/styles.css" />', () => `<style>${css}</style>`)
   .replace('<script src="assets/data.js" defer></script>', () => `<script>${data}</script>`)
   .replace('<script src="assets/tests.js" defer></script>', () => `<script>${tests}</script>`)
