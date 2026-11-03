@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Build and publish DVIS portal
+    name: Build and publish 1C-Rarus portal
     runs-on: ubuntu-latest
     environment:
       name: github-pages

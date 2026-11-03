@@ -73,7 +73,8 @@ test('local server serves the portal and assets, and keeps repository files priv
     for (const match of html.matchAll(/(?:src|href)="(assets\/[^"]+)"/g)) {
       const response = await fetch(`${base}/${match[1]}`);
       assert.equal(response.status, 200);
-      assert.ok((await response.text()).length > 100);
+      assert.ok((await response.text()).trim().length > 0);
+      assert.match(response.headers.get('content-type'), match[1].endsWith('.css') ? /text\/css/ : /javascript/);
       assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
     }
     assert.equal((await fetch(`${base}/.git/config`)).status, 404);
