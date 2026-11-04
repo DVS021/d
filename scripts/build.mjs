@@ -18,6 +18,7 @@ for (const video of catalog) {
 }
 await mkdir(out, { recursive: true });
 await cp(new URL('assets/', root), new URL('assets/', out), { recursive: true });
+await cp(new URL('documents/', root), new URL('documents/', out), { recursive: true });
 try {
   await stat(new URL('media/', root));
   await cp(new URL('media/', root), new URL('media/', out), { recursive: true });
@@ -32,6 +33,8 @@ const app = await readFile(new URL('assets/app.js', root), 'utf8');
 const tests = await readFile(new URL('assets/tests.js', root), 'utf8');
 const videos = await readFile(new URL('assets/videos.js', root), 'utf8');
 const videoUtils = await readFile(new URL('assets/video-utils.js', root), 'utf8');
+const learning = await readFile(new URL('assets/learning.js', root), 'utf8');
+const learningUI = await readFile(new URL('assets/learning-ui.js', root), 'utf8');
 const logo = (await readFile(new URL('assets/rarus-logo.png', root))).toString('base64');
 const standalone = html
   .replace('src="assets/rarus-logo.png"', () => `src="data:image/png;base64,${logo}"`)
@@ -40,6 +43,8 @@ const standalone = html
   .replace('<script src="assets/tests.js" defer></script>', () => `<script>${tests}</script>`)
   .replace('<script src="assets/videos.js" defer></script>', () => `<script>${videos}</script>`)
   .replace('<script src="assets/video-utils.js" defer></script>', () => `<script>${videoUtils}</script>`)
+  .replace('<script src="assets/learning.js" defer></script>', () => `<script>${learning}</script>`)
+  .replace('<script src="assets/learning-ui.js" defer></script>', () => `<script>${learningUI}</script>`)
   .replace('<script src="assets/app.js" defer></script>', () => `<script>${app}</script>`);
 await writeFile(new URL('dvis-standards.html', out), standalone);
 console.log('Built dist/index.html and standalone dist/dvis-standards.html');

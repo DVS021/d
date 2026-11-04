@@ -15,6 +15,11 @@ const allowedFiles = new Map([
   ['/assets/videos.js', ['assets/videos.js', 'text/javascript; charset=utf-8']],
   ['/assets/video-utils.js', ['assets/video-utils.js', 'text/javascript; charset=utf-8']],
   ['/assets/rarus-logo.png', ['assets/rarus-logo.png', 'image/png']],
+  ['/assets/learning.js', ['assets/learning.js', 'text/javascript; charset=utf-8']],
+  ['/assets/learning-ui.js', ['assets/learning-ui.js', 'text/javascript; charset=utf-8']],
+  ['/documents/glossary-v2.docx', ['documents/glossary-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
+  ['/documents/sales-memos-v2.pptx', ['documents/sales-memos-v2.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']],
+  ['/documents/sales-memos-v2.pdf', ['documents/sales-memos-v2.pdf', 'application/pdf']],
 ]);
 
 const mediaTypes = { mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',
