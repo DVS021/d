@@ -11,7 +11,30 @@ import { createServer } from '../scripts/server.mjs';
 const root = new URL('../', import.meta.url);
 const context = { window: {} };
 vm.runInNewContext(await readFile(new URL('assets/video-utils.js', root), 'utf8'), context);
-const { validVideo } = context.window.PORTAL_VIDEO_UTILS;
+const { validVideo, parseDriveLink, driveURL } = context.window.PORTAL_VIDEO_UTILS;
+
+test('Google Drive links produce canonical embedded players and reject folders and foreign URLs', () => {
+  const id = 'a1234567890BCDEFGHIJ_67890';
+  // URL is a browser global; supply it to the VM for link parsing.
+  context.URL = URL;
+  const parsed = parseDriveLink(`https://drive.google.com/file/d/${id}/view?usp=sharing&resourcekey=0_test`);
+  assert.equal(parsed.driveId, id);
+  assert.equal(driveURL(parsed), `https://drive.google.com/file/d/${id}/preview?resourcekey=0_test`);
+  assert.equal(driveURL(parsed, 'view'), `https://drive.google.com/file/d/${id}/view?resourcekey=0_test`);
+  assert.equal(parseDriveLink(`https://drive.google.com/open?id=${id}`).driveId, id);
+  const entry = { id: 'drive-case', title: 'Кейс', description: '', standards: [], provider: 'google-drive', driveId: id };
+  assert.equal(validVideo(entry), true);
+  for (const value of [
+    'https://drive.google.com/drive/folders/1nED2w3is2RrXMoQoKm5t6KmuUDEuxODs',
+    `https://drive.google.com.evil.example/file/d/${id}/view`,
+    `https://drive.google.com@evil.example/file/d/${id}/view`,
+    'javascript:alert(1)', `http://drive.google.com/file/d/${id}/view`,
+    `https://drive.google.com:8080/file/d/${id}/view`,
+  ]) assert.equal(parseDriveLink(value), null, value);
+  assert.equal(validVideo({ ...entry, driveId: '../evil' }), false);
+  assert.equal(validVideo({ ...entry, provider: 'unknown' }), false);
+  assert.equal(driveURL({ driveId: '<script>' }), '');
+});
 
 test('video player accepts local media and rejects executable and escaping paths', () => {
   const entry = { id: 'first-contact', title: 'Первый контакт', description: 'Разбор ситуации', src: 'media/videos/contact.mp4', standards: [2, 3] };

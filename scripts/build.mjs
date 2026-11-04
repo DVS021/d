@@ -1,24 +1,27 @@
-import { mkdir, readFile, writeFile, cp, stat } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, cp, stat, rm } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { loadVideoCatalog, videoCatalogScript } from './video-catalog.mjs';
 
 const root = new URL('../', import.meta.url);
 const out = new URL('dist/', root);
 const context = { window: {} };
-vm.runInNewContext(await readFile(new URL('assets/videos.js', root), 'utf8'), context);
 vm.runInNewContext(await readFile(new URL('assets/video-utils.js', root), 'utf8'), context);
-const catalog = context.window.PORTAL_VIDEOS;
+const catalog = await loadVideoCatalog(fileURLToPath(root));
 if (!Array.isArray(catalog)) throw new Error('Video catalog must be an array.');
 const ids = new Set();
 for (const video of catalog) {
   if (!context.window.PORTAL_VIDEO_UTILS.validVideo(video) || ids.has(video.id)) throw new Error('Invalid or duplicate video entry.');
   ids.add(video.id);
-  for (const file of [video.src, video.poster, video.captions].filter(Boolean)) {
+  for (const file of [video.provider === 'google-drive' ? null : video.src, video.poster, video.captions].filter(Boolean)) {
     if (!(await stat(new URL(file, root))).isFile()) throw new Error(`Missing media file: ${file}`);
   }
 }
 await mkdir(out, { recursive: true });
 await cp(new URL('assets/', root), new URL('assets/', out), { recursive: true });
+await writeFile(new URL('assets/videos.js', out), videoCatalogScript(catalog));
 await cp(new URL('documents/', root), new URL('documents/', out), { recursive: true });
+await rm(new URL('media/', out), { recursive: true, force: true });
 try {
   await stat(new URL('media/', root));
   await cp(new URL('media/', root), new URL('media/', out), { recursive: true });
@@ -31,7 +34,7 @@ const css = await readFile(new URL('assets/styles.css', root), 'utf8');
 const data = await readFile(new URL('assets/data.js', root), 'utf8');
 const app = await readFile(new URL('assets/app.js', root), 'utf8');
 const tests = await readFile(new URL('assets/tests.js', root), 'utf8');
-const videos = await readFile(new URL('assets/videos.js', root), 'utf8');
+const videos = videoCatalogScript(catalog);
 const videoUtils = await readFile(new URL('assets/video-utils.js', root), 'utf8');
 const learning = await readFile(new URL('assets/learning.js', root), 'utf8');
 const learningUI = await readFile(new URL('assets/learning-ui.js', root), 'utf8');

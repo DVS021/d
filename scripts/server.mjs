@@ -3,6 +3,7 @@ import { readFile, realpath, stat } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
+import { loadVideoCatalog, videoCatalogScript } from './video-catalog.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const allowedFiles = new Map([
@@ -25,12 +26,14 @@ const allowedFiles = new Map([
 const mediaTypes = { mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', vtt: 'text/vtt; charset=utf-8' };
 
-async function serveMedia(req, res, pathname) {
-  const match = pathname.match(/^\/media\/videos\/[a-z0-9][a-z0-9._-]*\.(mp4|webm|ogv|jpg|jpeg|png|webp|vtt)$/);
-  if (!match) return false;
+async function serveMedia(req, res, pathname, rootDirectory) {
+  let decoded;
+  try { decoded = decodeURIComponent(pathname); } catch { return false; }
+  const match = decoded.match(/^\/media\/videos\/([^/\\\x00-\x1f\x7f]+)\.(mp4|webm|ogv|jpg|jpeg|png|webp|vtt)$/i);
+  if (!match || match[1].startsWith('.')) return false;
   try {
-    const file = await realpath(resolve(root, pathname.slice(1)));
-    const directory = resolve(root, 'media/videos') + '/';
+    const file = await realpath(resolve(rootDirectory, decoded.slice(1)));
+    const directory = resolve(rootDirectory, 'media/videos') + '/';
     if (!file.startsWith(directory)) { res.writeHead(404).end('Not found'); return true; }
     const info = await stat(file);
     if (!info.isFile()) { res.writeHead(404).end('Not found'); return true; }
@@ -51,7 +54,7 @@ async function serveMedia(req, res, pathname) {
       status = 206;
       res.setHeader('Content-Range', `bytes ${start}-${end}/${info.size}`);
     }
-    res.writeHead(status, { 'Content-Type': mediaTypes[match[1]], 'Accept-Ranges': 'bytes', 'Content-Length': Math.max(0, end - start + 1) });
+    res.writeHead(status, { 'Content-Type': mediaTypes[match[2].toLowerCase()], 'Accept-Ranges': 'bytes', 'Content-Length': Math.max(0, end - start + 1) });
     if (req.method === 'HEAD' || !info.size) res.end();
     else {
       const stream = createReadStream(file, { start, end });
@@ -65,7 +68,7 @@ async function serveMedia(req, res, pathname) {
   return true;
 }
 
-export function createServer() {
+export function createServer({ rootDirectory = root } = {}) {
   return http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -75,14 +78,25 @@ export function createServer() {
       return;
     }
     const pathname = new URL(req.url, 'http://localhost').pathname;
-    if (await serveMedia(req, res, pathname)) return;
+    if (await serveMedia(req, res, pathname, rootDirectory)) return;
+    if (pathname === '/assets/videos.js') {
+      try {
+        const content = Buffer.from(videoCatalogScript(await loadVideoCatalog(rootDirectory)));
+        res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Content-Length': content.length });
+        res.end(req.method === 'HEAD' ? undefined : content);
+      } catch (error) {
+        console.error('Cannot create video catalog:', error.message);
+        res.writeHead(500).end('Cannot load video catalog');
+      }
+      return;
+    }
     const entry = allowedFiles.get(pathname);
     if (!entry) {
       res.writeHead(404).end('Not found');
       return;
     }
     try {
-      const content = await readFile(resolve(root, entry[0]));
+      const content = await readFile(resolve(rootDirectory, entry[0]));
       res.writeHead(200, { 'Content-Type': entry[1], 'Content-Length': content.length });
       res.end(req.method === 'HEAD' ? undefined : content);
     } catch (error) {
