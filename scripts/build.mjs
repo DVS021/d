@@ -38,6 +38,9 @@ const videos = videoCatalogScript(catalog);
 const videoUtils = await readFile(new URL('assets/video-utils.js', root), 'utf8');
 const learning = await readFile(new URL('assets/learning.js', root), 'utf8');
 const learningUI = await readFile(new URL('assets/learning-ui.js', root), 'utf8');
+const navigation = await readFile(new URL('assets/navigation.js', root), 'utf8');
+const materials = await readFile(new URL('assets/materials.js', root), 'utf8');
+const materialsUI = await readFile(new URL('assets/materials-ui.js', root), 'utf8');
 const logo = (await readFile(new URL('assets/rarus-logo.png', root))).toString('base64');
 const standalone = html
   .replace('src="assets/rarus-logo.png"', () => `src="data:image/png;base64,${logo}"`)
@@ -48,6 +51,9 @@ const standalone = html
   .replace('<script src="assets/video-utils.js" defer></script>', () => `<script>${videoUtils}</script>`)
   .replace('<script src="assets/learning.js" defer></script>', () => `<script>${learning}</script>`)
   .replace('<script src="assets/learning-ui.js" defer></script>', () => `<script>${learningUI}</script>`)
+  .replace('<script src="assets/materials.js" defer></script>', () => `<script>${materials}</script>`)
+  .replace('<script src="assets/materials-ui.js" defer></script>', () => `<script>${materialsUI}</script>`)
+  .replace('<script src="assets/navigation.js" defer></script>', () => `<script>${navigation}</script>`)
   .replace('<script src="assets/app.js" defer></script>', () => `<script>${app}</script>`);
 await writeFile(new URL('dvis-standards.html', out), standalone);
 console.log('Built dist/index.html and standalone dist/dvis-standards.html');

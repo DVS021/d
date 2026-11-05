@@ -18,7 +18,14 @@ const allowedFiles = new Map([
   ['/assets/rarus-logo.png', ['assets/rarus-logo.png', 'image/png']],
   ['/assets/learning.js', ['assets/learning.js', 'text/javascript; charset=utf-8']],
   ['/assets/learning-ui.js', ['assets/learning-ui.js', 'text/javascript; charset=utf-8']],
+  ['/assets/navigation.js', ['assets/navigation.js', 'text/javascript; charset=utf-8']],
+  ['/assets/materials.js', ['assets/materials.js', 'text/javascript; charset=utf-8']],
+  ['/assets/materials-ui.js', ['assets/materials-ui.js', 'text/javascript; charset=utf-8']],
   ['/documents/glossary-v2.docx', ['documents/glossary-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
+  ['/documents/standard-2-v2.docx', ['documents/standard-2-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
+  ['/documents/standard-3-v2.docx', ['documents/standard-3-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
+  ['/documents/lesson-1-why-standards.pptx', ['documents/lesson-1-why-standards.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']],
+  ['/documents/lesson-1-why-standards.pdf', ['documents/lesson-1-why-standards.pdf', 'application/pdf']],
   ['/documents/sales-memos-v2.pptx', ['documents/sales-memos-v2.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']],
   ['/documents/sales-memos-v2.pdf', ['documents/sales-memos-v2.pdf', 'application/pdf']],
 ]);
@@ -29,11 +36,11 @@ const mediaTypes = { mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',
 async function serveMedia(req, res, pathname, rootDirectory) {
   let decoded;
   try { decoded = decodeURIComponent(pathname); } catch { return false; }
-  const match = decoded.match(/^\/media\/videos\/([^/\\\x00-\x1f\x7f]+)\.(mp4|webm|ogv|jpg|jpeg|png|webp|vtt)$/i);
-  if (!match || match[1].startsWith('.')) return false;
+  const match = decoded.match(/^\/media\/(videos|standards|lessons\/lesson-1)\/([^/\\\x00-\x1f\x7f]+)\.(mp4|webm|ogv|jpg|jpeg|png|webp|vtt)$/i);
+  if (!match || match[2].startsWith('.') || (match[1] !== 'videos' && !/^(jpg|jpeg|png|webp)$/i.test(match[3]))) return false;
   try {
     const file = await realpath(resolve(rootDirectory, decoded.slice(1)));
-    const directory = resolve(rootDirectory, 'media/videos') + '/';
+    const directory = resolve(rootDirectory, 'media', match[1]) + '/';
     if (!file.startsWith(directory)) { res.writeHead(404).end('Not found'); return true; }
     const info = await stat(file);
     if (!info.isFile()) { res.writeHead(404).end('Not found'); return true; }
@@ -54,7 +61,7 @@ async function serveMedia(req, res, pathname, rootDirectory) {
       status = 206;
       res.setHeader('Content-Range', `bytes ${start}-${end}/${info.size}`);
     }
-    res.writeHead(status, { 'Content-Type': mediaTypes[match[2].toLowerCase()], 'Accept-Ranges': 'bytes', 'Content-Length': Math.max(0, end - start + 1) });
+    res.writeHead(status, { 'Content-Type': mediaTypes[match[3].toLowerCase()], 'Accept-Ranges': 'bytes', 'Content-Length': Math.max(0, end - start + 1) });
     if (req.method === 'HEAD' || !info.size) res.end();
     else {
       const stream = createReadStream(file, { start, end });

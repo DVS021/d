@@ -1,4 +1,5 @@
 dist/
+/rarus-preview.html
 node_modules/
 *.log
 test-results/
