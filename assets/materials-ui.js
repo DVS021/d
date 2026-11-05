@@ -10,7 +10,7 @@ function renderBlock(b){
  const id=b.id?` id="${b.id}"`:'';
  const marker=b.marker?`<span class="source-marker" aria-hidden="true">${escape(b.marker)}</span>`:'';
  if(b.type==='table')return `<div class="source-table-wrap"${id} role="region" aria-label="Таблица стандарта" tabindex="0"><table class="source-table"><tbody>${b.rows.map((row,i)=>`<tr>${row.map(c=>`<${i===0?'th scope="col"':'td'} colspan="${c.span}">${c.blocks.map(renderBlock).join('')}</${i===0?'th':'td'}>`).join('')}</tr>`).join('')}</tbody></table></div>`;
- if(b.type==='image')return `<figure class="source-diagram"${id}><a href="${escape(b.src)}" target="_blank" rel="noopener"><img src="${escape(b.src)}" alt="${escape(b.alt)}" loading="lazy"><span>Открыть исходную схему крупнее ${H.icon('external')}</span></a></figure>`;
+ if(b.type==='image')return `<figure class="source-diagram"${id}><a href="${escape(b.src)}" target="_blank" rel="noopener"><img src="${escape(b.src)}" alt="${escape(b.alt)}" loading="lazy"><span>Открыть схему крупнее ${H.icon('external')}</span></a></figure>`;
  if(b.type==='title')return `<p class="source-document-title"${id}>${escape(b.text)}</p>`;
  if(b.type==='heading'){const level=Math.min(4,Math.max(2,b.level));return `<h${level}${id}>${marker}${escape(b.text)}</h${level}>`}
  return `<p${id} class="${b.marker?'source-list-item':''}"${b.marker?` style="--list-indent:${Math.min(b.indent,5)}"`:''}>${marker}<span>${escape(b.text)}</span></p>`;
@@ -18,7 +18,7 @@ function renderBlock(b){
 function renderStandardText(id){
  const doc=standard(id);if(!doc)return '';
  const headings=doc.blocks.filter(b=>b.type==='heading');
- return `<div class="learning-source-bar final-source-bar"><span>${H.icon('checkcircle')} Окончательная редакция · 18.09.2026</span>${sourceLink(doc.source,'Скачать оригинал DOCX')}</div><div class="source-reader"><aside class="source-toc"><details${window.matchMedia('(min-width:1100px)').matches?' open':''}><summary>Оглавление документа</summary><nav aria-label="Оглавление стандарта №${doc.id}">${headings.map(b=>`<button class="source-toc-item source-depth-${b.level}" data-nav="standard/${doc.id}/text/${b.id}">${escape(b.text)}</button>`).join('')}</nav></details></aside><article class="source-document card" aria-label="Полный текст стандарта №${doc.id}">${doc.blocks.map(renderBlock).join('')}<footer>Полный текст окончательной редакции. Таблицы, приложения и исходные схемы сохранены. Формулировки первоисточника не сокращены.</footer></article></div>`;
+ return `<div class="learning-source-bar final-source-bar"><span>${H.icon('checkcircle')} Окончательная редакция · 18.09.2026</span>${sourceLink(doc.source,'Скачать DOCX')}</div><div class="source-reader"><aside class="source-toc"><details${window.matchMedia('(min-width:1100px)').matches?' open':''}><summary>Оглавление документа</summary><nav aria-label="Оглавление стандарта №${doc.id}">${headings.map(b=>`<button class="source-toc-item source-depth-${b.level}" data-nav="standard/${doc.id}/text/${b.id}">${escape(b.text)}</button>`).join('')}</nav></details></aside><article class="source-document card" aria-label="Полный текст стандарта №${doc.id}">${doc.blocks.map(renderBlock).join('')}</article></div>`;
 }
 
 
