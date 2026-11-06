@@ -22,12 +22,12 @@ function renderStandardText(id){
 }
 
 
-function renderLessons(){return `<article class="lesson-card card"><img src="${M.lesson.cover}" alt="Обложка презентации урока 1"><div><span class="eyebrow">УРОК 1 · ТИРАЖИРОВАНИЕ СТАНДАРТОВ СМБ</span><h2>${escape(M.lesson.title)}</h2><p>${escape(M.lesson.subtitle)}. Презентация из ${M.lesson.slides.length} слайдов.</p><div class="head-actions">${sourceLink(M.lesson.source,'Скачать презентацию PPTX')}<a class="button secondary small" href="${M.lesson.pdf}" target="_blank" rel="noopener">Открыть PDF ${H.icon('external')}</a></div></div></article>`}
+function renderLessons(){return `<details class="learning-documents section-card" id="lesson-documents"><summary>Учебные презентации</summary><div class="sources-list">${(M.lessons||[M.lesson]).map(lesson=>`<div class="sources-item"><span class="source-number">${lesson.id}</span><span class="source-body"><strong>Урок ${lesson.id}. ${escape(lesson.title)}</strong><small>${escape(lesson.subtitle)}</small></span><div class="document-actions">${sourceLink(lesson.source,'Скачать PPTX')}<a class="button secondary small" href="${lesson.pdf}" target="_blank" rel="noopener">Открыть PDF ${H.icon('external')}</a></div></div>`).join('')}</div></details>`}
 
 function search(query){
  const q=query.toLocaleLowerCase('ru-RU'),results=[];
  for(const doc of M.standards){let heading=doc.title,count=0;for(const b of doc.blocks){if(b.type==='heading')heading=b.text;const text=blockText(b);if(text.toLocaleLowerCase('ru-RU').includes(q)&&count<3){results.push({type:'Полный стандарт · ред. 2',title:`№${doc.id} · ${heading}`,desc:text.slice(0,180),nav:`standard/${doc.id}/text/${b.id}`});count++}}}
- if((M.lesson.title+' '+M.lesson.subtitle+' урок 1 тиражирование').toLocaleLowerCase('ru-RU').includes(q))results.push({type:'Презентация · урок 1',title:M.lesson.title,desc:M.lesson.subtitle,nav:'practice/lessons'});
+ for(const lesson of M.lessons||[M.lesson])if((lesson.title+' '+lesson.subtitle+' урок '+lesson.id+' тиражирование').toLocaleLowerCase('ru-RU').includes(q))results.push({type:'Презентация · урок '+lesson.id,title:lesson.title,desc:lesson.subtitle,nav:'sources/lessons'});
  return results;
 }
 window.PORTAL_MATERIALS_UI={init:helpers=>{H=helpers},standard,renderStandardText,renderLessons,search};

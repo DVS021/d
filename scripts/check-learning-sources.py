@@ -57,7 +57,7 @@ def published_paragraphs(blocks):
     return result
 
 
-assert [doc['id'] for doc in materials['standards']] == [2, 3]
+assert [doc['id'] for doc in materials['standards']] == [1, 2, 3]
 for doc in materials['standards']:
     with ZipFile(root / doc['source']) as archive:
         document = ET.fromstring(archive.read('word/document.xml'))
@@ -84,16 +84,19 @@ for doc in materials['standards']:
 
 p = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main',
      'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', **a}
-lesson = materials['lesson']
-with ZipFile(root / lesson['source']) as archive:
-    rels = {r.get('Id'): r.get('Target') for r in ET.fromstring(archive.read('ppt/_rels/presentation.xml.rels'))}
-    order = ET.fromstring(archive.read('ppt/presentation.xml')).findall('p:sldIdLst/p:sldId', p)
-    assert len(order) == len(lesson['slides']) == 30
-    for item, slide in zip(order, lesson['slides']):
-        name = 'ppt/' + rels[item.get('{' + p['r'] + '}id')]
-        xml = ET.fromstring(archive.read(name))
-        original = [''.join(t.text or '' for t in para.findall('.//a:t', a)) for para in xml.findall('.//a:p', a)]
-        assert [t for t in original if t.strip()] == slide['paragraphs'], f"Lesson slide {slide['number']} differs"
-assert (root / lesson['cover']).is_file()
-assert (root / lesson['pdf']).is_file()
-print('PASS: Lesson 1 presentation matches the source; PDF and cover exist')
+lessons = materials.get('lessons', [materials['lesson']])
+assert [lesson['id'] for lesson in lessons] == ['1', '2']
+for lesson in lessons:
+    with ZipFile(root / lesson['source']) as archive:
+        rels = {r.get('Id'): r.get('Target') for r in ET.fromstring(archive.read('ppt/_rels/presentation.xml.rels'))}
+        order = ET.fromstring(archive.read('ppt/presentation.xml')).findall('p:sldIdLst/p:sldId', p)
+        assert len(order) == len(lesson['slides']) == 30
+        for item, slide in zip(order, lesson['slides']):
+            name = 'ppt/' + rels[item.get('{' + p['r'] + '}id')]
+            xml = ET.fromstring(archive.read(name))
+            original = [''.join(t.text or '' for t in para.findall('.//a:t', a)) for para in xml.findall('.//a:p', a)]
+            assert [t for t in original if t.strip()] == slide['paragraphs'], f"Lesson {lesson['id']} slide {slide['number']} differs"
+    if 'cover' in lesson:
+        assert (root / lesson['cover']).is_file()
+    assert (root / lesson['pdf']).is_file()
+    print(f"PASS: Lesson {lesson['id']} presentation matches the source and PDF exists")

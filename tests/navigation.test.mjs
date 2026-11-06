@@ -7,17 +7,19 @@ const context = { window: {} };
 vm.runInNewContext(await readFile(new URL('../assets/navigation.js', import.meta.url), 'utf8'), context);
 const { canonicalRoute, parentRoute } = context.window.PORTAL_NAVIGATION;
 
-test('old links retain access to memos, schemes, videos and test results', () => {
+test('old links preserve full standards, separate memos, schemes, test attempts and presentations', () => {
   const routes = {
-    memos: 'catalog', 'memo/4': 'standard/4', 'memo/5': 'standard/5',
-    'memo/1': 'standard/1', 'memo/2': 'standard/2/memos', 'memo/3': 'standard/3/memos',
-    'memo/print': 'memo/print', visuals: 'practice/schemes',
-    scenarios: 'practice/cases', 'scenarios/schemes': 'practice/schemes',
-    'lesson/1': 'practice/lessons', 'lesson/1/15': 'practice/lessons',
-    cases: 'practice/cases', videos: 'practice/videos', quiz: 'practice/tests',
-    'quiz/a': 'practice/tests/a', 'quiz/b/review': 'practice/tests/b/review',
-    'glossary/term-034': 'glossary/term-034', 'video/duplicates': 'video/duplicates',
-    'case/repeat': 'case/repeat', 'standard/2/reference': 'standard/2/reference',
+    memos: 'memos', 'memo/1': 'memo/1', 'memo/4': 'memo/4', 'memo/5': 'memo/5',
+    'standard/1': 'standard/1', 'standard/2': 'standard/2', 'standard/4': 'standard/4',
+    'standard/1/memos': 'memo/1', 'standard/2/memos': 'memo/2', 'standard/4/memos': 'memo/4',
+    'standard/2/reference': 'standard/2',
+    'memo/print': 'memo/print', visuals: 'visuals', 'practice/schemes': 'visuals',
+    scenarios: 'practice/cases', 'scenarios/schemes': 'visuals',
+    'lesson/1': 'sources/lessons', 'lesson/1/15': 'sources/lessons', 'practice/lessons': 'sources/lessons',
+    cases: 'practice/cases', videos: 'practice/videos', quiz: 'quiz',
+    'quiz/a': 'quiz/a', 'quiz/b/review': 'quiz/b/review',
+    'practice/tests': 'quiz', 'practice/tests/a': 'quiz/a', 'practice/tests/b/review': 'quiz/b/review',
+    'glossary/term-034': 'glossary/term-034', 'video/duplicates': 'video/duplicates', 'case/repeat': 'case/repeat',
   };
   for (const [before, after] of Object.entries(routes)) {
     assert.equal(canonicalRoute(before), after);
@@ -25,17 +27,17 @@ test('old links retain access to memos, schemes, videos and test results', () =>
   }
 });
 
-test('all child pages highlight exactly one of the five main sections', async () => {
-  const roots = ['home', 'catalog', 'practice', 'glossary', 'control'];
+test('schemes and self-check are independent menu sections; practice contains cases and videos', async () => {
+  const roots = ['home', 'catalog', 'visuals', 'practice', 'quiz', 'glossary', 'control'];
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const sidebar = [...html.matchAll(/class="side-link[^"]*" data-nav="([^"]+)"/g)].map(m => m[1]);
+  const sidebar = [...html.matchAll(/class="side-link[^\"]*" data-nav="([^\"]+)"/g)].map(m => m[1]);
   assert.deepEqual(sidebar, roots);
   for (const [page, parent] of Object.entries({
-    'standard/4': 'catalog', 'memo/4': 'catalog', 'memo/print': 'catalog',
-    'scenario/incoming': 'practice', visuals: 'practice', 'scenarios/schemes': 'practice',
-    videos: 'practice', 'video/duplicates': 'practice', 'case/repeat': 'practice',
-    'quiz/a/review': 'practice', 'practice/tests': 'practice', 'glossary/term-001': 'glossary',
-    'lesson/1/15': 'practice', 'practice/lessons': 'practice', 'standard/2/text/std-2-block-006': 'catalog',
+    'standard/1': 'catalog', 'standard/2/text/std-2-block-006': 'catalog',
+    'memo/4': 'catalog', 'memos': 'catalog', 'memo/print': 'catalog',
+    'scenario/incoming': 'practice', 'case/repeat': 'practice', 'video/duplicates': 'practice',
+    visuals: 'visuals', 'practice/schemes': 'visuals',
+    'quiz/a/review': 'quiz', 'practice/tests/a/review': 'quiz', 'glossary/term-001': 'glossary',
   })) assert.equal(parentRoute(page), parent);
   assert.equal(parentRoute('unknown'), null);
 });

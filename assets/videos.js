@@ -1,4 +1,4 @@
-// Три видеокейса, загруженные пользователем.
+// Каталог видеокейсов: три локальных записи и шесть роликов Google Drive.
 window.PORTAL_VIDEOS = [
   {
     "id": "lead-handoff",
@@ -12,7 +12,8 @@ window.PORTAL_VIDEOS = [
     "standards": [
       3,
       4
-    ]
+    ],
+    "sourceDriveId": "1ZzlqzsMHErEYVtVSfSUUCxmYylIRvRjp"
   },
   {
     "id": "interest-state",
@@ -25,7 +26,8 @@ window.PORTAL_VIDEOS = [
     "poster": "media/videos/interest-state-poster.jpg",
     "standards": [
       5
-    ]
+    ],
+    "sourceDriveId": "1exJtWn06VNtseNTZ-Q12ZbxWV3Jj3tzg"
   },
   {
     "id": "duplicates",
@@ -38,6 +40,73 @@ window.PORTAL_VIDEOS = [
     "poster": "media/videos/duplicates-poster.jpg",
     "standards": [
       3
-    ]
+    ],
+    "sourceDriveId": "1hzNzgS8nJg5xNOc0yO1T2OVP4VOVQlpf"
+  },
+  {
+    "id": "gerasimova-case-1",
+    "title": "Кейс 1. Герасимова",
+    "description": "",
+    "category": "Практические видеокейсы",
+    "provider": "google-drive",
+    "driveId": "1ihNIzpEBLcYLbwbgltoGqCGTlKprzWKu",
+    "duration": 230.45805,
+    "standards": [],
+    "poster": "media/videos/gerasimova-case-1-poster.jpg"
+  },
+  {
+    "id": "gerasimova-case-2",
+    "title": "Кейс 2. Герасимова",
+    "description": "",
+    "category": "Практические видеокейсы",
+    "provider": "google-drive",
+    "driveId": "12yHECHc3MX3rT0QTLZ6t-kEHOaKLv6X6",
+    "duration": 239.14231,
+    "standards": [],
+    "poster": "media/videos/gerasimova-case-2-poster.jpg"
+  },
+  {
+    "id": "overdue-leads-interests",
+    "title": "Единый отчёт по просроченным Лидам и Интересам",
+    "description": "",
+    "category": "Практические видеокейсы",
+    "provider": "google-drive",
+    "driveId": "1q3fdYdVUNcvWYoMIrRdGg3mGL9cCRTET",
+    "duration": 94.55165532879819,
+    "poster": "media/videos/overdue-leads-interests-poster.jpg",
+    "standards": []
+  },
+  {
+    "id": "completion-reason",
+    "title": "Причина завершения не соответствует истории",
+    "description": "",
+    "category": "Практические видеокейсы",
+    "provider": "google-drive",
+    "driveId": "1L2jo43V4P9LS8rhFYEHYk2siLNV-if9Y",
+    "duration": 69.56698412698412,
+    "poster": "media/videos/completion-reason-poster.jpg",
+    "standards": []
+  },
+  {
+    "id": "sla-check",
+    "title": "Проверка SLA",
+    "description": "",
+    "category": "Практические видеокейсы",
+    "provider": "google-drive",
+    "driveId": "1cN9BKLP2Gqmf6x845J7ufJ2gPIjluWza",
+    "duration": 178.1899319727891,
+    "poster": "media/videos/sla-check-poster.jpg",
+    "standards": []
+  },
+  {
+    "id": "reopen-lead",
+    "title": "Возврат Лида из отклонённых",
+    "description": "",
+    "category": "Практические видеокейсы",
+    "provider": "google-drive",
+    "driveId": "1As4Q9cPvRJBmLNZ-B4GEP2hsYX8PU-t4",
+    "duration": 200.20244897959185,
+    "poster": "media/videos/reopen-lead-poster.jpg",
+    "standards": []
   }
 ];

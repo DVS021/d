@@ -137,8 +137,9 @@ def standard(number, source):
                 'source': source, 'blocks': blocks}
 
 
-def lesson():
-    with ZipFile(ROOT / 'documents/lesson-1-why-standards.pptx') as archive:
+def lesson(number=1):
+    stem = 'lesson-1-why-standards' if number == 1 else 'lesson-2-routing'
+    with ZipFile(ROOT / f'documents/{stem}.pptx') as archive:
         # Follow presentation relationships, not the order of filenames in ZIP.
         relationships = {r.get('Id'): r.get('Target') for r in
                          ET.fromstring(archive.read('ppt/_rels/presentation.xml.rels'))}
@@ -154,17 +155,21 @@ def lesson():
                 (p for p in paragraphs[1:] if not p.isdigit()), paragraphs[0])
             slides.append({'number': i, 'title': title, 'paragraphs': paragraphs,
                            'sourceSlide': name})
-        return {'id': '1', 'title': 'Как не терять клиента',
-                'subtitle': 'Зачем мы вводим стандарты продаж СМБ',
-                'source': 'documents/lesson-1-why-standards.pptx',
-                'pdf': 'documents/lesson-1-why-standards.pdf', 'slides': slides,
-                'cover': 'media/lessons/lesson-1/slide-01.jpg',
-                }
+        result = {'id': str(number),
+                  'title': 'Как не терять клиента' if number == 1 else 'Диспетчеризация и регистрация в ЕИС',
+                  'subtitle': 'Зачем мы вводим стандарты продаж СМБ' if number == 1 else 'Как не потерять обращение при маршрутизации',
+                  'source': f'documents/{stem}.pptx',
+                  'pdf': f'documents/{stem}.pdf', 'slides': slides}
+        if number == 1:
+            result['cover'] = 'media/lessons/lesson-1/slide-01.jpg'
+        return result
 
 
 if __name__ == '__main__':
-    sources = ['documents/standard-2-v2.docx', 'documents/standard-3-v2.docx']
-    materials = {'standards': [standard(n, source) for n, source in enumerate(sources, 2)], 'lesson': lesson()}
+    sources = ['documents/glossary-v2.docx', 'documents/standard-2-v2.docx', 'documents/standard-3-v2.docx']
+    lessons = [lesson(1), lesson(2)]
+    materials = {'standards': [standard(n, source) for n, source in enumerate(sources, 1)],
+                 'lesson': lessons[0], 'lessons': lessons}
     serialized = json.dumps(materials, ensure_ascii=False, indent=2).replace('<', '\\u003c')
     (ROOT / 'assets/materials.js').write_text('// Generated from the supplied final originals by scripts/import-materials.py.\nwindow.PORTAL_MATERIALS = ' + serialized + ';\n')
-    print('Imported final standards 2 and 3 and Lesson 1 presentation metadata')
+    print('Imported full standards 1–3 and metadata for two lesson presentations')
