@@ -45,8 +45,8 @@ window.PORTAL_VIDEOS = [
   },
   {
     "id": "gerasimova-case-1",
-    "title": "Кейс 1. Герасимова",
-    "description": "",
+    "title": "Новая продажа заведена сразу как Интерес без Лида",
+    "description": "Кейс о соблюдении последовательности: Лид → квалификация → Интерес.",
     "category": "Практические видеокейсы",
     "provider": "google-drive",
     "driveId": "1ihNIzpEBLcYLbwbgltoGqCGTlKprzWKu",
@@ -56,8 +56,8 @@ window.PORTAL_VIDEOS = [
   },
   {
     "id": "gerasimova-case-2",
-    "title": "Кейс 2. Герасимова",
-    "description": "",
+    "title": "Исходящий контакт по клиентской базе: когда появляется Лид",
+    "description": "Кейс о создании Лида только при выявлении новой коммерческой потребности.",
     "category": "Практические видеокейсы",
     "provider": "google-drive",
     "driveId": "12yHECHc3MX3rT0QTLZ6t-kEHOaKLv6X6",
