@@ -102,3 +102,15 @@ body{color:var(--ink);background:var(--bg)}
 .catalog-resources{justify-content:flex-start;flex-wrap:wrap;gap:8px}
 .catalog-resources .button{padding:8px 10px}
 .visual-panel{scroll-margin-top:90px}
+
+.role-workspace{margin:26px 0}
+.role-task-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.role-task{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:21px;text-align:left;color:var(--ink);min-width:0}
+.role-task strong{font-size:15px;line-height:1.45}
+.role-task>span:not(.ico){font-size:12px;line-height:1.7;color:var(--sub)}
+.role-task>.ico{margin-top:auto;color:var(--rarus-red)}
+.role-task:hover{border-color:var(--rarus-red)}
+.role-materials{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;font-size:12px}
+.role-priority{align-self:flex-start;display:inline-block;font-size:11px;color:var(--rarus-red);background:#f0faff;border-radius:5px;padding:4px 8px;margin:0 0 14px}
+.role-practice-focus{font-size:13px;line-height:1.7;color:var(--sub);margin:16px 0}
+@media(max-width:760px){.role-task-grid{grid-template-columns:1fr}.catalog-top{flex-wrap:wrap;gap:8px}}
