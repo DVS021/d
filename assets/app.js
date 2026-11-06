@@ -10,6 +10,7 @@ D.glossary=L.glossary.terms;
 Object.assign(D.standards[0],{source:L.glossary.source,edition:'18.09.2026'});
 for(const doc of window.PORTAL_MATERIALS.standards)Object.assign(D.standards[doc.id-1],{title:doc.title.replace(/^Стандарт\s*№\s*\d+\.\s*/,''),source:doc.source,edition:'18.09.2026',finalDocument:true});
 const fullStandards=D.standards.filter(s=>MU.standard(s.id));
+const standardScheme=id=>({1:'visuals',2:'visuals/route-visual',3:'visuals/route-visual',4:'visuals/lead-visual',5:'visuals/stages-visual',6:'visuals/cycle-visual'})[id];
 const referenceNav=id=>MU.standard(id)?'standard/'+id:'memo/'+id;
 const referenceLabel=id=>MU.standard(id)?'№'+id:'Памятка №'+id;
 const normalizeSearch=value=>String(value).toLocaleLowerCase('ru-RU').replace(/ё/g,'е').trim();
@@ -110,10 +111,19 @@ function renderPractice(view='cases'){
  return heading('РАБОЧИЕ СИТУАЦИИ','Практика','Разбирайте текстовые кейсы и смотрите видеопримеры.')+practiceNavigation(view)+(view==='cases'?renderCases(true):renderVideos(true));
 }
 
-function renderCatalog(){return `${heading('БИБЛИОТЕКА','Стандарты продаж','Полные тексты стандартов.',button('Памятки','memos','secondary','clipboard'))}
+function renderCatalog(){return `${heading('БИБЛИОТЕКА','Стандарты продаж','',button('Памятки','memos','secondary','clipboard'))}
 <div class="filter-bar"><label class="search-field">${icon('search')}<input id="catalog-search" value="${esc(state.catalogSearch)}" placeholder="Поиск по названию, номеру, теме..." autocomplete="off" /></label><div class="filter-divider"></div><div class="chips">${[['all','Все'],['favorites','Избранное']].map(([v,l])=>`<button class="chip ${state.catalogFilter===v?'active':''}" data-filter="${v}">${l}</button>`).join('')}</div><span class="catalog-count" id="catalog-count"></span></div><div class="catalog-grid" id="catalog-cards"></div>`}
 
-function catalogHTML(){const q=normalizeSearch(state.catalogSearch);const items=fullStandards.filter(s=>(!q||normalizeSearch(`${s.id} ${s.title} ${s.subtitle} ${(s.tags||[]).join(' ')}`).includes(q))&&(state.catalogFilter!=='favorites'||favorites[s.id]));const cards=items.map(s=>`<article class="catalog-card"><div class="catalog-top"><span class="catalog-badge">СТАНДАРТ ${String(s.id).padStart(2,'0')}</span><span class="status">Полный текст · ред. 2</span></div><h3>${esc(s.title)}</h3><p>${esc(s.subtitle)}</p><div class="catalog-bottom"><span class="catalog-meta">${icon(learned[s.id]?'checkcircle':'book')} ${learned[s.id]?'Изучен':'Редакция 2'}</span><button class="catalog-action" data-nav="standard/${s.id}">Открыть ${icon('arrow')}</button></div></article>`).join('');return {html:cards||`<div class="search-empty" style="grid-column:1/-1">${icon('search')}<h3>Ничего не найдено</h3><p>Попробуйте другое слово или сбросьте фильтр.</p></div>`,count:`Показано: ${items.length} из ${fullStandards.length}`}}
+function catalogHTML(){
+ const q=normalizeSearch(state.catalogSearch);
+ const items=D.standards.filter(s=>(!q||normalizeSearch(`${s.id} ${s.title} ${s.subtitle} ${(s.tags||[]).join(' ')}`).includes(q))&&(state.catalogFilter!=='favorites'||favorites[s.id]));
+ const cards=items.map(s=>{
+  const doc=MU.standard(s.id),scheme=standardScheme(s.id),memo=L.memos.some(m=>m.standard===s.id);
+  const links=[doc?button('Читать стандарт','standard/'+s.id,'secondary small','book'):'',scheme?button('Схемы',scheme,'secondary small','route'):'',memo?button('Памятки','memo/'+s.id,'secondary small','clipboard'):''].join('');
+  return `<article class="catalog-card" data-standard="${s.id}"><div class="catalog-top"><span class="catalog-badge">СТАНДАРТ ${String(s.id).padStart(2,'0')}</span>${doc?'<span class="status">Полный текст · ред. 2</span>':''}</div><h3>${esc(s.title)}</h3><p>${esc(s.subtitle)}</p>${links?`<div class="catalog-bottom catalog-resources">${links}</div>`:''}</article>`;
+ }).join('');
+ return {html:cards||`<div class="search-empty" style="grid-column:1/-1">${icon('search')}<h3>Ничего не найдено</h3><p>Попробуйте другое слово или сбросьте фильтр.</p></div>`,count:`Показано: ${items.length} из ${D.standards.length}`};
+}
 
 function fillCatalog(){if(!$('#catalog-cards'))return;const result=catalogHTML();$('#catalog-cards').innerHTML=result.html;$('#catalog-count').textContent=result.count;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===state.catalogFilter))}
 
@@ -121,7 +131,7 @@ function fillCatalog(){if(!$('#catalog-cards'))return;const result=catalogHTML()
 function renderDetail(id){
  const doc=MU.standard(id),s=std(id);if(!doc||!s)return renderNotFound();
  return `<button class="back-link" data-nav="catalog">${icon('back')} Все стандарты</button><div class="detail-hero"><div><div class="tag-list"><span class="tag purple">СТАНДАРТ №${s.id}</span><span class="tag teal">РЕДАКЦИЯ 2</span></div><h1>${esc(s.title)}</h1></div><div class="detail-hero-actions"><button class="button secondary" data-learn="${s.id}">${learned[id]?'✓ Изучено':'Отметить изученным'} ${icon('checkcircle')}</button><button class="button secondary" data-favorite="${s.id}">${favorites[id]?'Убрать из избранного':'В избранное'} ${icon('bookmark')}</button></div></div>${sectionNavigation('Материалы стандарта',[
- ['standard/'+s.id,'Полный стандарт',true],['memo/'+s.id,'Памятка',false]
+ ['standard/'+s.id,'Полный стандарт',true],[standardScheme(s.id),'Схемы',false],['memo/'+s.id,'Памятки',false]
  ])}${MU.renderStandardText(s.id)}<div class="learning-related">${s.id===1?button('Найти определение в глоссарии','glossary','secondary','layers'):''}${button('Разобрать рабочую ситуацию','practice/cases','secondary','route')}</div>`;
 }
 
@@ -177,7 +187,7 @@ function searchMatches(q){const z=q.trim().toLowerCase();if(!z)return[];const a=
 function searchResultsHtml(q){const list=searchMatches(q);return !q.trim()?`<div class="search-empty" style="padding:30px">${icon('search')}<h3>Начните вводить запрос</h3><p>Например: «дубль», «первый отклик», «Интерес» или «передача».</p></div>`:list.length?`<div class="search-results">${list.map(r=>`<button class="search-result" data-nav="${r.nav}"><div class="result-type">${esc(r.type)}</div><div><strong>${esc(r.title)}</strong><p>${esc(r.desc)}</p></div>${icon('chevron')}</button>`).join('')}</div>`:`<div class="search-empty"><h3>Совпадений нет</h3><p>Попробуйте другое слово.</p></div>`}
 function renderSearchPage(){return `${heading('ЕДИНЫЙ ПОИСК','Поиск по порталу','Поиск по стандартам, глоссарию, памяткам, ситуациям и кейсам.')}<div class="filter-bar"><label class="search-field">${icon('search')}<input id="full-search" value="${esc(state.search)}" placeholder="Введите слово или ситуацию..." autocomplete="off" autofocus /></label></div><div id="full-results">${searchResultsHtml(state.search)}</div>`}
 function renderNotFound(){return `${heading('НЕ НАЙДЕНО','Такой страницы пока нет')}<div class="search-empty"><h3>Попробуйте перейти на главную</h3>${button('На главную','home','primary','house')}</div>`}
-function updateProgress(){const count=fullStandards.filter(s=>learned[s.id]).length,total=fullStandards.length;$('#side-progress').textContent=`${count}/${total}`;$('#side-progress-bar').style.width=`${total?count/total*100:0}%`;$('#standards-count').textContent=String(total)}
+function updateProgress(){const count=fullStandards.filter(s=>learned[s.id]).length,total=fullStandards.length;$('#side-progress').textContent=`${count}/${total}`;$('#side-progress-bar').style.width=`${total?count/total*100:0}%`;$('#standards-count').textContent=String(D.standards.length)}
 
 function parseRoute(){try{return canonicalRoute(decodeURIComponent(location.hash.slice(1)||'home'))}catch{return 'not-found'}}
 const titles={home:'Главная',catalog:'Стандарты',standard:'Стандарт',memo:'Памятка',scenarios:'Что мне делать?',scenario:'Сценарий',practice:'Практика',visuals:'Схемы',quiz:'Проверь себя',memos:'Памятки',lesson:'Урок',case:'Учебный кейс',video:'Видеокейс',glossary:'Глоссарий',control:'Руководителю',sources:'Документы',search:'Поиск'};
@@ -208,6 +218,7 @@ function render(){
  if(state.page==='practice'&&arg==='videos'){fillVideos();connectVideo()}
  if(state.page==='video')connectVideo();updateProgress();
  if(state.page==='standard'&&parts[2]==='text'&&parts[3])requestAnimationFrame(()=>document.getElementById(parts[3])?.scrollIntoView({block:'start'}));
+ if(state.page==='visuals'&&arg)requestAnimationFrame(()=>document.getElementById(arg)?.scrollIntoView({block:'start',behavior:'instant'}));
  document.title=`${titles[state.page]||'Портал'} — Стандарты продаж СМБ · 1С-Рарус`;
 }
 function navigate(to){to=canonicalRoute(to);if(to==='search'){openSearch();return}closeSearch();$('#sidebar').classList.remove('open');if(parseRoute()===to){render();window.scrollTo({top:0,behavior:'smooth'})}else location.hash='#'+to}

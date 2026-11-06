@@ -98,3 +98,7 @@ body{color:var(--ink);background:var(--bg)}
 
 .case-search-bar{margin-bottom:12px}.case-filter-bar,.case-filter-bar .chips{flex-wrap:wrap}.case-search-empty{grid-column:1/-1}.document-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.learning-documents{scroll-margin-top:100px}.learning-documents>summary{font-size:18px;font-weight:750;color:#28566b;cursor:pointer}.learning-documents .sources-list{margin-top:20px}.sources-item:has(.document-actions){flex-wrap:wrap}.sources-item:has(.document-actions) .source-body{flex:1 1 230px}.section-card>.document-actions+.standard-source-actions{margin-top:20px}
 @media(max-width:760px){.sources-item .document-actions{width:100%;padding-left:40px}.document-actions .button{white-space:normal}.case-filter-bar .chips{gap:5px}.case-filter-bar .chip{font-size:10px;padding:9px 10px}.learning-documents>summary{font-size:16px}}
+
+.catalog-resources{justify-content:flex-start;flex-wrap:wrap;gap:8px}
+.catalog-resources .button{padding:8px 10px}
+.visual-panel{scroll-margin-top:90px}
