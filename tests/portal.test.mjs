@@ -74,7 +74,8 @@ test('local server serves the portal and assets, and keeps repository files priv
       const response = await fetch(`${base}/${match[1]}`);
       assert.equal(response.status, 200);
       assert.ok((await response.arrayBuffer()).byteLength > 0);
-      const type = match[1].endsWith('.png') ? /image\/png/ : match[1].endsWith('.css') ? /text\/css/ : /javascript/;
+      const pathname = new URL(match[1], base).pathname;
+      const type = pathname.endsWith('.png') ? /image\/png/ : pathname.endsWith('.css') ? /text\/css/ : /javascript/;
       assert.match(response.headers.get('content-type'), type);
       assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
     }

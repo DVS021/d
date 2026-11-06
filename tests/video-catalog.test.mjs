@@ -84,7 +84,7 @@ test('static builds include discovered videos and remove deleted videos without 
     await cp(new URL('assets/video-utils.js', sourceRoot), join(root, 'assets/video-utils.js'));
     for (const file of ['data.js', 'app.js', 'tests.js', 'learning.js', 'learning-ui.js', 'materials.js', 'materials-ui.js', 'navigation.js', 'styles.css']) await writeFile(join(root, 'assets', file), '/* fixture */');
     await writeFile(join(root, 'assets/rarus-logo.png'), 'fixture-logo');
-    await writeFile(join(root, 'index.html'), '<script src="assets/videos.js" defer></script>');
+    await writeFile(join(root, 'index.html'), '<link rel="stylesheet" href="assets/styles.css" />\n<script src="assets/videos.js" defer></script>\n<script src="assets/app.js" defer></script>');
     await mkdir(join(root, 'documents'));
     await writeFile(join(root, 'documents/README.md'), 'fixture');
     const name = 'Мой видеокейс.mp4';
@@ -96,10 +96,20 @@ test('static builds include discovered videos and remove deleted videos without 
     assert.equal(context.window.PORTAL_VIDEOS[0].title, 'Мой видеокейс');
     assert.equal(await readFile(join(root, 'dist/media/videos', name), 'utf8'), 'video-data');
     assert.equal(await readFile(join(root, 'assets/videos.js'), 'utf8'), 'window.PORTAL_VIDEOS = [];\n');
+    const firstHtml = await readFile(join(root, 'dist/index.html'), 'utf8');
+    assert.equal(await readFile(join(root, 'index.html'), 'utf8'), firstHtml, 'branch and Actions publication must use the same asset URLs');
+    const firstVersion = firstHtml.match(/\?v=([a-f0-9]{12})/)[1];
+    assert.match(firstHtml, /assets\/styles\.css\?v=[a-f0-9]{12}/);
+    const standalone = await readFile(join(root, 'dist/dvis-standards.html'), 'utf8');
+    assert.doesNotMatch(standalone, /(?:src|href)="assets\/(?:videos\.js|app\.js|styles\.css)/, 'standalone export must still inline versioned files');
     await rm(join(root, 'media/videos', name));
     await run(process.execPath, [join(root, 'scripts/build.mjs')]);
     await assert.rejects(readFile(join(root, 'dist/media/videos', name)), { code: 'ENOENT' });
     vm.runInNewContext(await readFile(join(root, 'dist/assets/videos.js'), 'utf8'), context);
     assert.equal(context.window.PORTAL_VIDEOS.length, 0);
+    const nextHtml = await readFile(join(root, 'dist/index.html'), 'utf8');
+    assert.notEqual(nextHtml.match(/\?v=([a-f0-9]{12})/)[1], firstVersion, 'changing the discovered video library must invalidate cached assets');
+    await run(process.execPath, [join(root, 'scripts/build.mjs')]);
+    assert.equal(await readFile(join(root, 'dist/index.html'), 'utf8'), nextHtml, 'unchanged builds must keep stable asset URLs');
   } finally { await rm(root, { recursive: true, force: true }); }
 });

@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile, cp, stat, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { createHash } from 'node:crypto';
 import { loadVideoCatalog, videoCatalogScript } from './video-catalog.mjs';
 
 const root = new URL('../', import.meta.url);
@@ -28,8 +29,9 @@ try {
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
 }
-const html = await readFile(new URL('index.html', root), 'utf8');
-await writeFile(new URL('index.html', out), html);
+const sourceHtml = await readFile(new URL('index.html', root), 'utf8');
+// Keep the template independent of the previous build's asset version.
+const html = sourceHtml.replace(/((?:src|href)="assets\/[^"?]+\.(?:js|css))(?:\?[^"\s]*)?"/g, '$1"');
 const css = await readFile(new URL('assets/styles.css', root), 'utf8');
 const data = await readFile(new URL('assets/data.js', root), 'utf8');
 const app = await readFile(new URL('assets/app.js', root), 'utf8');
@@ -42,6 +44,15 @@ const navigation = await readFile(new URL('assets/navigation.js', root), 'utf8')
 const materials = await readFile(new URL('assets/materials.js', root), 'utf8');
 const materialsUI = await readFile(new URL('assets/materials-ui.js', root), 'utf8');
 const logo = (await readFile(new URL('assets/rarus-logo.png', root))).toString('base64');
+// One content version keeps cached scripts, data and styles from different
+// releases from being combined. Both branch Pages and Actions use these URLs.
+const version = createHash('sha256').update(JSON.stringify([
+  html, css, data, app, tests, videos, videoUtils, learning, learningUI,
+  navigation, materials, materialsUI,
+])).digest('hex').slice(0, 12);
+const publishedHtml = html.replace(/((?:src|href)="assets\/[^"?]+\.(?:js|css))"/g, `$1?v=${version}"`);
+if (sourceHtml !== publishedHtml) await writeFile(new URL('index.html', root), publishedHtml);
+await writeFile(new URL('index.html', out), publishedHtml);
 const standalone = html
   .replace('src="assets/rarus-logo.png"', () => `src="data:image/png;base64,${logo}"`)
   .replace('<link rel="stylesheet" href="assets/styles.css" />', () => `<style>${css}</style>`)
