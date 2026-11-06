@@ -24,8 +24,19 @@ a = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
 with ZipFile(root / 'documents/sales-memos-v2.pptx') as archive:
     slides = sorted([n for n in archive.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml', n)],
                     key=lambda n: int(re.search(r'(\d+)\.xml', n)[1]))
-    assert len(slides) == len(learning['memos']) == 8
-    for name, memo in zip(slides, learning['memos']):
+    assert len(slides) == len(learning['memos']) == 9
+    assert {memo['slide'] for memo in learning['memos']} == set(range(1, 10))
+    assert len([m for m in learning['memos'] if m['standard'] == 5]) == 3
+    presentation_ns = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main'}
+    relation_ns = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+    relationships = {rel.get('Id'): rel.get('Target') for rel in
+                     ET.fromstring(archive.read('ppt/_rels/presentation.xml.rels'))}
+    presentation = ET.fromstring(archive.read('ppt/presentation.xml'))
+    slide_order = [relationships[slide.get('{' + relation_ns + '}id')] for slide in
+                   presentation.findall('p:sldIdLst/p:sldId', presentation_ns)]
+    assert slide_order == [f"slides/slide{memo['slide']}.xml" for memo in learning['memos']]
+    for memo in learning['memos']:
+        name = f"ppt/slides/slide{memo['slide']}.xml"
         xml = ET.fromstring(archive.read(name))
         original = [''.join(t.text or '' for t in p.findall('.//a:t', a)) for p in xml.findall('.//a:p', a)]
         original = [p for p in original if p.strip()]
@@ -38,7 +49,7 @@ with ZipFile(root / 'documents/sales-memos-v2.pptx') as archive:
         for metric in memo['metrics']:
             published.extend([metric['value'], metric['label']])
         assert original == published, f"Slide {memo['slide']} differs from original"
-print('PASS: all 87 definitions and all paragraphs of 8 memos match the original files')
+print('PASS: all 87 definitions and all paragraphs of 9 memos match the original files')
 
 # Full standards use the final originals, including tables and appendices.
 source = (root / 'assets/materials.js').read_text()
