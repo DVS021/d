@@ -51,6 +51,24 @@ with ZipFile(root / 'documents/sales-memos-v2.pptx') as archive:
         assert original == published, f"Slide {memo['slide']} differs from original"
 print('PASS: all 87 definitions and all paragraphs of 9 memos match the original files')
 
+# The working-question index and permanent case numbers follow the uploaded navigator.
+portal_source = (root / 'assets/data.js').read_text()
+questions = json.loads(re.search(r'const workQuestions = (\[[\s\S]*?\n\]);', portal_source)[1])
+navigator_cases = json.loads(re.search(r'const navigatorCases = (\[[\s\S]*?\n\]);', portal_source)[1])
+with ZipFile(root / 'documents/sales-navigator-2026-10-28.docx') as archive:
+    navigator = ET.fromstring(archive.read('word/document.xml'))
+    paragraphs = [''.join(t.text or '' for t in p.findall('.//w:t', w)).strip()
+                  for p in navigator.findall('.//w:p', w)]
+    normalized = {' '.join(p.split()) for p in paragraphs}
+    assert len(questions) == 24
+    for question in questions:
+        assert ' '.join(question['title'].split()) in normalized, question['id']
+    original_numbers = [match[1] for text in paragraphs
+                        if (match := re.match(r'^КЕЙС\s+(\d{3})\s', text))]
+    assert original_numbers == [case['number'] for case in navigator_cases]
+    assert len(original_numbers) == 13
+print('PASS: all 24 questions and 13 permanent case numbers match the uploaded navigator')
+
 # Full standards use the final originals, including tables and appendices.
 source = (root / 'assets/materials.js').read_text()
 materials = json.loads(re.search(r'window.PORTAL_MATERIALS = ([\s\S]*);\s*$', source)[1])

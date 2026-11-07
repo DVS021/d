@@ -21,6 +21,7 @@ const allowedFiles = new Map([
   ['/assets/navigation.js', ['assets/navigation.js', 'text/javascript; charset=utf-8']],
   ['/assets/materials.js', ['assets/materials.js', 'text/javascript; charset=utf-8']],
   ['/assets/materials-ui.js', ['assets/materials-ui.js', 'text/javascript; charset=utf-8']],
+  ['/documents/sales-navigator-2026-10-28.docx', ['documents/sales-navigator-2026-10-28.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
   ['/documents/glossary-v2.docx', ['documents/glossary-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
   ['/documents/standard-2-v2.docx', ['documents/standard-2-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
   ['/documents/standard-3-v2.docx', ['documents/standard-3-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],

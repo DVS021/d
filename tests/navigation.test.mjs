@@ -36,6 +36,9 @@ test('schemes and self-check are independent menu sections; practice contains ca
     'standard/1': 'catalog', 'standard/2/text/std-2-block-006': 'catalog',
     'memo/4': 'catalog', 'memos': 'catalog', 'memo/print': 'catalog',
     'scenario/incoming': 'practice', 'case/repeat': 'practice', 'video/duplicates': 'practice',
+    'practice/cases/question/lead-return': 'practice',
+    'practice/cases/standard/5': 'practice', 'practice/cases/rule/lead-return': 'practice',
+    'memo/5/text/memo-section-9-1': 'catalog',
     visuals: 'visuals', 'practice/schemes': 'visuals',
     'quiz/a/review': 'quiz', 'practice/tests/a/review': 'quiz', 'glossary/term-001': 'glossary',
   })) assert.equal(parentRoute(page), parent);
