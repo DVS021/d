@@ -45,6 +45,24 @@ test('24 working questions and all cases have valid rules, helpers and case refe
   }
 });
 
+test('first-response checks belong to controllers and managers; dispatcher questions focus on acceptance', () => {
+  for (const id of ['sla', 'website-first-response']) {
+    const c = data.cases.find(c => c.id === id);
+    assert.deepEqual([...c.roles].sort(), ['controller', 'manager']);
+    assert.match(c.responsibility, /контролёр и РОП/);
+    assert.match(c.responsibility, /принято конкретным исполнителем/);
+  }
+  const firstResponse = data.workQuestions.find(q => q.id === 'first-response');
+  assert.deepEqual([...firstResponse.roles].sort(), ['controller', 'manager']);
+  const dispatcherQuestions = data.workQuestions.filter(q => q.roles.includes('dispatcher'));
+  assert.ok(dispatcherQuestions.some(q => q.id === 'acceptance'));
+  assert.ok(!dispatcherQuestions.some(q => ['first-response', 'lead-life', 'overdue'].includes(q.id)));
+  for (const q of data.workQuestions) {
+    assert.ok(q.roles.length);
+    assert.ok(q.roles.includes('manager') && q.roles.includes('controller'));
+  }
+});
+
 test('rule links point into available full standards or the correct memo section', async () => {
   for (const [key, rule] of Object.entries(data.practiceRules)) {
     if (rule.kind === 'standard') {
