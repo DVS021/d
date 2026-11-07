@@ -62,6 +62,28 @@ test('every scenario branch reaches a valid decision and has no dead links', () 
   }
 });
 
+test('all six lesson exercises have one case each and valid presentation references', async () => {
+  vm.runInNewContext(await readFile(new URL('../assets/materials.js', import.meta.url), 'utf8'), context);
+  const exercises = new Set();
+  for (const c of data.cases.filter(c => c.training)) {
+    const { lesson, caseNumber, slide, reviewSlide } = c.training;
+    const key = `${lesson}/${caseNumber}`;
+    assert.ok(!exercises.has(key), `Duplicated exercise ${key}`);
+    exercises.add(key);
+    const presentation = context.window.PORTAL_MATERIALS.lessons.find(l => +l.id === lesson);
+    assert.ok(presentation, `Missing lesson for ${c.id}`);
+    const sourceSlide = presentation.slides.find(s => s.number === slide);
+    assert.ok(sourceSlide, `Missing exercise slide for ${c.id}`);
+    assert.match(sourceSlide.paragraphs.join(' '), new RegExp(`кейс\\s*${caseNumber}`, 'i'));
+    if (reviewSlide) assert.ok(presentation.slides.some(s => s.number === reviewSlide));
+    assert.ok(c.roles.length && c.roles.every(r => ['employee', 'dispatcher', 'manager', 'controller'].includes(r)));
+    assert.ok(c.why && c.next && c.choices[c.correct]);
+    assert.ok((await readFile(new URL('../' + presentation.pdf, import.meta.url))).length);
+  }
+  assert.deepEqual([...exercises].sort(), ['1/1', '1/2', '1/3', '2/1', '2/2', '2/3']);
+  assert.equal(new Set(data.cases.map(c => c.id)).size, data.cases.length);
+});
+
 test('local server serves the portal and assets, and keeps repository files private', async () => {
   const server = createServer();
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
