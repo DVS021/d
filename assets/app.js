@@ -5,6 +5,7 @@ const T=window.PORTAL_TESTS;
 const L=window.PORTAL_LEARNING;
 const LU=window.PORTAL_LEARNING_UI;
 const MU=window.PORTAL_MATERIALS_UI;
+const trainerVersion=new URL(document.currentScript?.src||location.href,location.href).searchParams.get('v')||'draft';
 const {canonicalRoute,parentRoute}=window.PORTAL_NAVIGATION;
 D.glossary=L.glossary.terms;
 Object.assign(D.standards[0],{source:L.glossary.source,edition:'18.09.2026'});
@@ -108,6 +109,7 @@ function roleTasks(){const profile=roleProfiles[role];return `<section class="ro
 function renderHome(){const completed=fullStandards.filter(s=>learned[s.id]).length;const profile=roleProfiles[role];const quick=profile.cases?profile.cases.map(id=>D.cases.find(c=>c.id===id)):D.cases;
 return `<div class="hero"><div class="hero-content"><span class="hero-pill"><span class="dot"></span> СМБ · 1С-Рарус</span><h1>Стандарты, которые<br>помогают продавать</h1><p>Единое пространство стандартов продаж СМБ «1С-Рарус»: рабочие алгоритмы, практические ситуации и обучение для всех подразделений.</p><div class="hero-actions">${button('Открыть стандарты','catalog','primary','arrow')}${button('Разобрать ситуацию','scenarios','outline','route')}</div></div><div class="hero-art"><div class="orbit"></div><div class="float-card one"><div class="float-icon">✓</div><div><b>01 → 06</b><small>Рабочий контур</small></div></div><div class="float-card two"><div class="float-icon">↗</div><div><b>${fullStandards.length} стандарта</b><small>Полные тексты</small></div></div><div class="float-card three"><div class="float-icon">◎</div><div><b>Кейс → решение</b><small>Меньше ошибок</small></div></div></div></div>
 ${roleTasks()}
+<button class="video-home-banner trainer-home-banner" data-nav="trainer"><span class="video-home-icon">${icon('users')}</span><span><strong>Обсудить стандарты с тренером</strong><small>Объяснение и рабочая ситуация для роли «${esc(publicRole[role])}»</small></span><span class="video-home-arrow">Начать ${icon('arrow')}</span></button>
 ${LU.renderHomeLearning()}
 <button class="video-home-banner" data-nav="videos"><span class="video-home-icon">${icon('video')}</span><span><strong>Видеокейсы СМБ «1С-Рарус»</strong><small>Разбираем рабочие ситуации и действия по стандартам</small></span><span class="video-home-arrow">Смотреть ${icon('arrow')}</span></button>
 <div class="stats-row"><div class="stat"><div><div class="stat-label">В каталоге</div><div class="stat-value">${fullStandards.length}</div><div class="stat-note">полных документов</div></div><div class="stat-icon">${icon('book')}</div></div><div class="stat"><div><div class="stat-label">Памятки</div><div class="stat-value">6</div><div class="stat-note">№1–6 с источниками</div></div><div class="stat-icon blue">${icon('layers')}</div></div><div class="stat"><div><div class="stat-label">Практика</div><div class="stat-value">${role==='general'?D.cases.length:D.cases.filter(c=>c.roles.includes(role)).length}</div><div class="stat-note">${role==='general'?'все учебные кейсы':'кейсов для вашей роли'}</div></div><div class="stat-icon orange">${icon('puzzle')}</div></div><div class="stat"><div><div class="stat-label">Изучено</div><div class="stat-value">${completed}<span style="font-size:14px;color:#9da5b5;font-weight:600"> / ${fullStandards.length}</span></div><div class="stat-note">личный прогресс</div></div><div class="stat-icon teal">${icon('trophy')}</div></div></div>
@@ -276,8 +278,18 @@ function renderNotFound(){return `${heading('НЕ НАЙДЕНО','Такой с
 function updateProgress(){const count=fullStandards.filter(s=>learned[s.id]).length,total=fullStandards.length;$('#side-progress').textContent=`${count}/${total}`;$('#side-progress-bar').style.width=`${total?count/total*100:0}%`;$('#standards-count').textContent=String(D.standards.length)}
 
 function parseRoute(){try{return canonicalRoute(decodeURIComponent(location.hash.slice(1)||'home'))}catch{return 'not-found'}}
-const titles={home:'Главная',catalog:'Стандарты',standard:'Стандарт',memo:'Памятка',scenarios:'Что мне делать?',scenario:'Сценарий',practice:'Практика',visuals:'Схемы',quiz:'Проверь себя',memos:'Памятки',lesson:'Урок',case:'Учебный кейс',video:'Видеокейс',glossary:'Глоссарий',control:'Руководителю',sources:'Документы',search:'Поиск'};
+function renderTrainer(){const source=window.PORTAL_TRAINER_PREVIEW?`srcdoc="${esc(window.PORTAL_TRAINER_PREVIEW)}"`:`src="trainer/index.html?embedded=1&amp;role=${encodeURIComponent(role)}&amp;v=${encodeURIComponent(trainerVersion)}"`;return `${heading('ОБУЧЕНИЕ ПО СТАНДАРТАМ СМБ','Тренер по стандартам','Разберитесь в смысле правил и обсудите рабочую ситуацию для своей роли.')}<iframe id="trainer-frame" class="trainer-frame" title="Говорящий тренер по стандартам продаж СМБ" ${source} allow="autoplay"></iframe>`}
+window.addEventListener('message',event=>{
+ const frame=$('#trainer-frame');
+ if(!frame||event.source!==frame.contentWindow||event.origin!==location.origin)return;
+ const data=event.data;
+ if(data?.type==='rarus-trainer:ready')frame.contentWindow.postMessage({type:'rarus-portal:role',role},location.origin==='null'?'*':location.origin);
+ if(data?.type==='rarus-trainer:height'&&Number.isFinite(data.height))frame.style.height=Math.min(2200,Math.max(640,data.height))+'px';
+ if(data?.type==='rarus-trainer:role'&&Object.hasOwn(roleProfiles,data.role)&&role!==data.role){const select=$('#role-select');select.value=data.role;select.dispatchEvent(new Event('change',{bubbles:true}))}
+});
+const titles={home:'Главная',catalog:'Стандарты',standard:'Стандарт',memo:'Памятка',scenarios:'Что мне делать?',scenario:'Сценарий',practice:'Практика',trainer:'Тренер',visuals:'Схемы',quiz:'Проверь себя',memos:'Памятки',lesson:'Урок',case:'Учебный кейс',video:'Видеокейс',glossary:'Глоссарий',control:'Руководителю',sources:'Документы',search:'Поиск'};
 function render(){
+ const previousTrainer=$('#trainer-frame');if(previousTrainer)previousTrainer.contentWindow.postMessage({type:'rarus-portal:stop'},location.origin==='null'?'*':location.origin);
  const route=parseRoute(),parts=route.split('/');if(location.hash.slice(1)!==route)history.replaceState(null,'','#'+route);
  state.page=parts[0];const arg=parts[1];let html;
  switch(parts[0]){
@@ -290,6 +302,7 @@ function render(){
  case 'quiz':html=renderQuiz(arg,parts[2]);break;
   case 'scenario':html=practiceNavigation('cases')+renderScenario(arg);break;
  case 'practice':html=renderPractice(arg,parts[2],parts[3]);break;
+ case 'trainer':html=renderTrainer();break;
   case 'case':html=practiceNavigation('cases')+renderCase(arg);break;
  case 'video':html=practiceNavigation('videos')+renderVideo(arg);break;
  case 'glossary':html=renderGlossary(arg);break;

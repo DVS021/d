@@ -21,6 +21,10 @@ const allowedFiles = new Map([
   ['/assets/navigation.js', ['assets/navigation.js', 'text/javascript; charset=utf-8']],
   ['/assets/materials.js', ['assets/materials.js', 'text/javascript; charset=utf-8']],
   ['/assets/materials-ui.js', ['assets/materials-ui.js', 'text/javascript; charset=utf-8']],
+  ['/trainer/', ['trainer/index.html', 'text/html; charset=utf-8']],
+  ['/trainer/index.html', ['trainer/index.html', 'text/html; charset=utf-8']],
+  ...['app.js', 'engine.js', 'data.js', 'audio-map.js'].map(file => ['/trainer/' + file, ['trainer/' + file, 'text/javascript; charset=utf-8']]),
+  ['/trainer/style.css', ['trainer/style.css', 'text/css; charset=utf-8']],
   ['/documents/sales-navigator-2026-10-28.docx', ['documents/sales-navigator-2026-10-28.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
   ['/documents/glossary-v2.docx', ['documents/glossary-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
   ['/documents/standard-2-v2.docx', ['documents/standard-2-v2.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
@@ -33,17 +37,18 @@ const allowedFiles = new Map([
   ['/documents/sales-memos-v2.pdf', ['documents/sales-memos-v2.pdf', 'application/pdf']],
 ]);
 
-const mediaTypes = { mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',
+const mediaTypes = { mp3: 'audio/mpeg', mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', vtt: 'text/vtt; charset=utf-8' };
 
 async function serveMedia(req, res, pathname, rootDirectory) {
   let decoded;
   try { decoded = decodeURIComponent(pathname); } catch { return false; }
-  const match = decoded.match(/^\/media\/(videos|standards|lessons\/lesson-1)\/([^/\\\x00-\x1f\x7f]+)\.(mp4|webm|ogv|jpg|jpeg|png|webp|vtt)$/i);
-  if (!match || match[2].startsWith('.') || (match[1] !== 'videos' && !/^(jpg|jpeg|png|webp)$/i.test(match[3]))) return false;
+  const match = decoded.match(/^\/media\/(videos|standards|lessons\/lesson-1)\/([^/\\\x00-\x1f\x7f]+)\.(mp4|webm|ogv|jpg|jpeg|png|webp|vtt)$/i)
+    || decoded.match(/^\/(trainer\/audio)\/([a-f0-9]{16})\.(mp3)$/);
+  if (!match || match[2].startsWith('.') || (!['videos', 'trainer/audio'].includes(match[1]) && !/^(jpg|jpeg|png|webp)$/i.test(match[3]))) return false;
   try {
     const file = await realpath(resolve(rootDirectory, decoded.slice(1)));
-    const directory = resolve(rootDirectory, 'media', match[1]) + '/';
+    const directory = resolve(rootDirectory, match[1] === 'trainer/audio' ? match[1] : 'media/' + match[1]) + '/';
     if (!file.startsWith(directory)) { res.writeHead(404).end('Not found'); return true; }
     const info = await stat(file);
     if (!info.isFile()) { res.writeHead(404).end('Not found'); return true; }

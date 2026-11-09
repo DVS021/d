@@ -1,8 +1,9 @@
-import { mkdir, readFile, writeFile, cp, stat, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, cp, stat, rm, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { createHash } from 'node:crypto';
 import { loadVideoCatalog, videoCatalogScript } from './video-catalog.mjs';
+import { trainerExport } from './trainer-export.mjs';
 
 const root = new URL('../', import.meta.url);
 const out = new URL('dist/', root);
@@ -44,15 +45,32 @@ const navigation = await readFile(new URL('assets/navigation.js', root), 'utf8')
 const materials = await readFile(new URL('assets/materials.js', root), 'utf8');
 const materialsUI = await readFile(new URL('assets/materials-ui.js', root), 'utf8');
 const logo = (await readFile(new URL('assets/rarus-logo.png', root))).toString('base64');
+const trainerFiles = new Map();
+for (const name of ['index.html', 'style.css', 'app.js', 'engine.js', 'data.js', 'audio-map.js']) {
+  const source = await readFile(new URL('trainer/' + name, root), 'utf8');
+  trainerFiles.set(name, source.replace(/\?v=[a-z0-9]+/g, '?v=trainer'));
+}
+const trainerAudioHashes = [];
+for (const name of (await readdir(new URL('trainer/audio/', root))).sort()) {
+  trainerAudioHashes.push([name, createHash('sha256').update(await readFile(new URL('trainer/audio/' + name, root))).digest('hex')]);
+}
 // One content version keeps cached scripts, data and styles from different
 // releases from being combined. Both branch Pages and Actions use these URLs.
 const version = createHash('sha256').update(JSON.stringify([
   html, css, data, app, tests, videos, videoUtils, learning, learningUI,
-  navigation, materials, materialsUI,
+  navigation, materials, materialsUI, [...trainerFiles], trainerAudioHashes,
 ])).digest('hex').slice(0, 12);
 const publishedHtml = html.replace(/((?:src|href)="assets\/[^"?]+\.(?:js|css))"/g, `$1?v=${version}"`);
 if (sourceHtml !== publishedHtml) await writeFile(new URL('index.html', root), publishedHtml);
 await writeFile(new URL('index.html', out), publishedHtml);
+await rm(new URL('trainer/', out), { recursive: true, force: true });
+await cp(new URL('trainer/', root), new URL('trainer/', out), { recursive: true });
+for (const [name, source] of trainerFiles) {
+  const versioned = source.replaceAll('?v=trainer', '?v=' + version);
+  await writeFile(new URL('trainer/' + name, root), versioned);
+  await writeFile(new URL('trainer/' + name, out), versioned);
+}
+const trainerBootstrap = '<script>window.PORTAL_TRAINER_PREVIEW=' + JSON.stringify(await trainerExport(root)).replaceAll('<', '\\u003c') + ';</script>';
 const standalone = html
   .replace('src="assets/rarus-logo.png"', () => `src="data:image/png;base64,${logo}"`)
   .replace('<link rel="stylesheet" href="assets/styles.css" />', () => `<style>${css}</style>`)
@@ -65,6 +83,6 @@ const standalone = html
   .replace('<script src="assets/materials.js" defer></script>', () => `<script>${materials}</script>`)
   .replace('<script src="assets/materials-ui.js" defer></script>', () => `<script>${materialsUI}</script>`)
   .replace('<script src="assets/navigation.js" defer></script>', () => `<script>${navigation}</script>`)
-  .replace('<script src="assets/app.js" defer></script>', () => `<script>${app}</script>`);
+  .replace('<script src="assets/app.js" defer></script>', () => trainerBootstrap + `<script>${app}</script>`);
 await writeFile(new URL('dvis-standards.html', out), standalone);
 console.log('Built dist/index.html and standalone dist/dvis-standards.html');

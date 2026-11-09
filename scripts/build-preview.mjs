@@ -54,6 +54,11 @@ const bootstrap = `<script>
   window.PORTAL_VIDEO_UTILS.validVideo = video => bundled.includes(video) || validate(video);
   replaceFiles(window.PORTAL_MATERIALS);
   replaceFiles(window.PORTAL_LEARNING);
+  if (window.PORTAL_TRAINER_PREVIEW) {
+    for (const [name, item] of lookup) {
+      if (name.startsWith('documents/')) window.PORTAL_TRAINER_PREVIEW = window.PORTAL_TRAINER_PREVIEW.replaceAll(name, item.url);
+    }
+  }
   document.addEventListener('click', event => {
     const anchor = event.target.closest('a[href]');
     if (!anchor) return;

@@ -28,7 +28,7 @@ test('old links preserve full standards, separate memos, schemes, test attempts 
 });
 
 test('schemes and self-check are independent menu sections; practice contains cases and videos', async () => {
-  const roots = ['home', 'catalog', 'visuals', 'practice', 'quiz', 'glossary', 'control'];
+  const roots = ['home', 'catalog', 'visuals', 'practice', 'trainer', 'quiz', 'glossary', 'control'];
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sidebar = [...html.matchAll(/class="side-link[^\"]*" data-nav="([^\"]+)"/g)].map(m => m[1]);
   assert.deepEqual(sidebar, roots);
@@ -39,7 +39,7 @@ test('schemes and self-check are independent menu sections; practice contains ca
     'practice/cases/question/lead-return': 'practice',
     'practice/cases/standard/5': 'practice', 'practice/cases/rule/lead-return': 'practice',
     'memo/5/text/memo-section-9-1': 'catalog',
-    visuals: 'visuals', 'practice/schemes': 'visuals',
+    visuals: 'visuals', 'practice/schemes': 'visuals', trainer: 'trainer',
     'quiz/a/review': 'quiz', 'practice/tests/a/review': 'quiz', 'glossary/term-001': 'glossary',
   })) assert.equal(parentRoute(page), parent);
   assert.equal(parentRoute('unknown'), null);

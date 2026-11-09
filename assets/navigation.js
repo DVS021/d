@@ -17,7 +17,7 @@
     const page = canonicalRoute(value).split('/')[0];
     if (['catalog', 'standard', 'memo', 'memos'].includes(page)) return 'catalog';
     if (['practice', 'scenario', 'case', 'video'].includes(page)) return 'practice';
-    return ['home', 'visuals', 'quiz', 'glossary', 'control'].includes(page) ? page : null;
+    return ['home', 'visuals', 'trainer', 'quiz', 'glossary', 'control'].includes(page) ? page : null;
   }
   window.PORTAL_NAVIGATION = { canonicalRoute, parentRoute };
 })();

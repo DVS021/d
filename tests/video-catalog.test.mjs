@@ -80,12 +80,13 @@ test('static builds include discovered videos and remove deleted videos without 
   const root = await fixture();
   try {
     await mkdir(join(root, 'scripts'));
-    for (const file of ['build.mjs', 'video-catalog.mjs']) await cp(new URL('scripts/' + file, sourceRoot), join(root, 'scripts', file));
+    for (const file of ['build.mjs', 'video-catalog.mjs', 'trainer-export.mjs']) await cp(new URL('scripts/' + file, sourceRoot), join(root, 'scripts', file));
     await cp(new URL('assets/video-utils.js', sourceRoot), join(root, 'assets/video-utils.js'));
     for (const file of ['data.js', 'app.js', 'tests.js', 'learning.js', 'learning-ui.js', 'materials.js', 'materials-ui.js', 'navigation.js', 'styles.css']) await writeFile(join(root, 'assets', file), '/* fixture */');
     await writeFile(join(root, 'assets/rarus-logo.png'), 'fixture-logo');
     await writeFile(join(root, 'index.html'), '<link rel="stylesheet" href="assets/styles.css" />\n<script src="assets/videos.js" defer></script>\n<script src="assets/app.js" defer></script>');
     await mkdir(join(root, 'documents'));
+    await cp(new URL('trainer/', sourceRoot), join(root, 'trainer'), { recursive: true });
     await writeFile(join(root, 'documents/README.md'), 'fixture');
     const name = 'Мой видеокейс.mp4';
     await writeFile(join(root, 'media/videos', name), 'video-data');
