@@ -86,7 +86,7 @@ def published_paragraphs(blocks):
     return result
 
 
-assert [doc['id'] for doc in materials['standards']] == [1, 2, 3]
+assert [doc['id'] for doc in materials['standards']] == [1, 2, 3, 4]
 for doc in materials['standards']:
     with ZipFile(root / doc['source']) as archive:
         document = ET.fromstring(archive.read('word/document.xml'))
@@ -114,7 +114,7 @@ for doc in materials['standards']:
 p = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main',
      'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', **a}
 lessons = materials.get('lessons', [materials['lesson']])
-assert [lesson['id'] for lesson in lessons] == ['1', '2']
+assert [lesson['id'] for lesson in lessons] == ['1', '2', '3', '3-advanced']
 for lesson in lessons:
     with ZipFile(root / lesson['source']) as archive:
         rels = {r.get('Id'): r.get('Target') for r in ET.fromstring(archive.read('ppt/_rels/presentation.xml.rels'))}
@@ -127,5 +127,5 @@ for lesson in lessons:
             assert [t for t in original if t.strip()] == slide['paragraphs'], f"Lesson {lesson['id']} slide {slide['number']} differs"
     if 'cover' in lesson:
         assert (root / lesson['cover']).is_file()
-    assert (root / lesson['pdf']).is_file()
-    print(f"PASS: Lesson {lesson['id']} presentation matches the source and PDF exists")
+    assert not lesson['pdf'] or (root / lesson['pdf']).is_file()
+    print(f"PASS: Lesson {lesson['id']} presentation matches the source")

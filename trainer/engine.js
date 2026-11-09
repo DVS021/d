@@ -1,5 +1,5 @@
-import { roles, sources } from './data.js?v=845eb3e33c0e';
-import { audioMap } from './audio-map.js?v=845eb3e33c0e';
+import { roles, sources } from './data.js?v=e93c5c54fc92';
+import { audioMap } from './audio-map.js?v=e93c5c54fc92';
 export { roles, sources };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);

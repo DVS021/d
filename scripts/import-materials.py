@@ -133,12 +133,12 @@ def standard(number, source):
         blocks[0]['type'] = 'title'
         for index, block in enumerate(blocks):
             block['id'] = f'std-{number}-block-{index:03}'
-        return {'id': number, 'title': blocks[0]['text'], 'edition': 'Редакция 2 от 18.09.2026',
+        return {'id': number, 'title': blocks[0]['text'], 'edition': 'Редакция 2 от ' + ('23.09.2026' if number == 4 else '18.09.2026'),
                 'source': source, 'blocks': blocks}
 
 
 def lesson(number=1):
-    stem = 'lesson-1-why-standards' if number == 1 else 'lesson-2-routing'
+    stem = {1:'lesson-1-why-standards',2:'lesson-2-routing',3:'lesson-3-lead','3-advanced':'lesson-3-lead-advanced'}[number]
     with ZipFile(ROOT / f'documents/{stem}.pptx') as archive:
         # Follow presentation relationships, not the order of filenames in ZIP.
         relationships = {r.get('Id'): r.get('Target') for r in
@@ -159,17 +159,19 @@ def lesson(number=1):
                   'title': 'Как не терять клиента' if number == 1 else 'Диспетчеризация и регистрация в ЕИС',
                   'subtitle': 'Зачем мы вводим стандарты продаж СМБ' if number == 1 else 'Как не потерять обращение при маршрутизации',
                   'source': f'documents/{stem}.pptx',
-                  'pdf': f'documents/{stem}.pdf', 'slides': slides}
+                  'pdf': f'documents/{stem}.pdf' if number in (1,2) else None, 'slides': slides}
+        if number in (3, '3-advanced'):
+            result.update(title='Лид и квалификация Лида' + (' — усложнённые кейсы' if number == '3-advanced' else ''), subtitle='Стандарт №4 · работа с Лидом и решение по квалификации', label='Урок 3' + (' · усложнённые кейсы' if number == '3-advanced' else ''))
         if number == 1:
             result['cover'] = 'media/lessons/lesson-1/slide-01.jpg'
         return result
 
 
 if __name__ == '__main__':
-    sources = ['documents/glossary-v2.docx', 'documents/standard-2-v2.docx', 'documents/standard-3-v2.docx']
-    lessons = [lesson(1), lesson(2)]
+    sources = ['documents/glossary-v2.docx', 'documents/standard-2-v2.docx', 'documents/standard-3-v2.docx', 'documents/standard-4-v2.docx']
+    lessons = [lesson(1), lesson(2), lesson(3), lesson('3-advanced')]
     materials = {'standards': [standard(n, source) for n, source in enumerate(sources, 1)],
                  'lesson': lessons[0], 'lessons': lessons}
     serialized = json.dumps(materials, ensure_ascii=False, indent=2).replace('<', '\\u003c')
     (ROOT / 'assets/materials.js').write_text('// Generated from the supplied final originals by scripts/import-materials.py.\nwindow.PORTAL_MATERIALS = ' + serialized + ';\n')
-    print('Imported full standards 1–3 and metadata for two lesson presentations')
+    print('Imported full standards 1–4 and lesson presentations 1–3')

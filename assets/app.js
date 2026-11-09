@@ -9,15 +9,15 @@ const trainerVersion=new URL(document.currentScript?.src||location.href,location
 const {canonicalRoute,parentRoute}=window.PORTAL_NAVIGATION;
 D.glossary=L.glossary.terms;
 Object.assign(D.standards[0],{source:L.glossary.source,edition:'18.09.2026'});
-for(const doc of window.PORTAL_MATERIALS.standards)Object.assign(D.standards[doc.id-1],{title:doc.title.replace(/^Стандарт\s*№\s*\d+\.\s*/,''),source:doc.source,edition:'18.09.2026',finalDocument:true});
+for(const doc of window.PORTAL_MATERIALS.standards)Object.assign(D.standards[doc.id-1],{title:doc.title.replace(/^Стандарт\s*№\s*\d+\.\s*/,''),source:doc.source,edition:doc.id===4?'23.09.2026':'18.09.2026',finalDocument:true});
 const fullStandards=D.standards.filter(s=>MU.standard(s.id));
 const standardScheme=id=>({1:'visuals',2:'visuals/route-visual',3:'visuals/route-visual',4:'visuals/lead-visual',5:'visuals/stages-visual',6:'visuals/cycle-visual'})[id];
 const referenceNav=id=>MU.standard(id)?'standard/'+id:'memo/'+id;
 const referenceLabel=id=>MU.standard(id)?'№'+id:'Памятка №'+id;
 const normalizeSearch=value=>String(value).toLocaleLowerCase('ru-RU').replace(/ё/g,'е').trim();
 const caseHelpers={repeat:'incoming',handoff:'handoff',many:'duplicate',outbound:'outgoing',sla:'response','duplicate-or-independent':'duplicate','website-first-response':'response'};
-const caseTrainingLabel=c=>c.training?'Урок '+c.training.lesson+' · кейс '+c.training.caseNumber:'';
-function caseTrainingSource(c){const t=c.training,lesson=t&&window.PORTAL_MATERIALS.lessons.find(l=>+l.id===t.lesson);return lesson?`<a class="button secondary small" href="${esc(lesson.pdf)}#page=${t.reviewSlide||t.slide}" target="_blank" rel="noopener">${esc(caseTrainingLabel(c))} ${icon('external')}</a>`:''}
+const caseTrainingLabel=c=>c.training?'Урок '+String(c.training.lesson).split('-')[0]+(String(c.training.lesson).includes('advanced')?' · усложнённый':'')+' · кейс '+c.training.caseNumber:'';
+function caseTrainingSource(c){const t=c.training,lesson=t&&window.PORTAL_MATERIALS.lessons.find(l=>String(l.id)===String(t.lesson));return lesson&&!lesson.pdf?button('Разбор · '+caseTrainingLabel(c),'sources/lessons/'+lesson.id+'/'+(t.reviewSlide||t.slide),'secondary small','book'):lesson?`<a class="button secondary small" href="${esc(lesson.pdf)}#page=${t.reviewSlide||t.slide}" target="_blank" rel="noopener">${esc(caseTrainingLabel(c))} ${icon('external')}</a>`:''}
 const {validVideo,durationLabel,parseDriveLink,driveURL}=window.PORTAL_VIDEO_UTILS;
 const videos=(window.PORTAL_VIDEOS||[]).filter(validVideo);
 let videoSearch='',videoCategory='all';
@@ -311,7 +311,7 @@ function render(){
  case 'search':html=renderSearchPage();break;
  default:html=renderNotFound();
  }
- $('#view').innerHTML=html;if(state.page==='sources'&&arg==='lessons'){const lessons=$('#lesson-documents');if(lessons){lessons.open=true;requestAnimationFrame(()=>lessons.scrollIntoView({block:'start'}))}}$('#breadcrumb').textContent=titles[state.page]||'Портал';
+ $('#view').innerHTML=html;if(state.page==='sources'&&arg==='lessons'){const lessons=$('#lesson-documents');if(lessons){lessons.open=true;requestAnimationFrame(()=>(parts[2]?$('#lesson-reader')||lessons:lessons).scrollIntoView({block:'start'}))}}$('#breadcrumb').textContent=titles[state.page]||'Портал';
  $$('.side-link').forEach(link=>{const active=link.dataset.nav===parentRoute(route);link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});
  if(state.page==='catalog')fillCatalog();LU.afterRender(state.page);
  if(state.page==='practice'&&arg==='videos'){fillVideos();connectVideo()}

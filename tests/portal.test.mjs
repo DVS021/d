@@ -65,7 +65,7 @@ test('every scenario branch reaches a valid decision and has no dead links', () 
 test('all six lesson exercises have one case each and valid presentation references', async () => {
   vm.runInNewContext(await readFile(new URL('../assets/materials.js', import.meta.url), 'utf8'), context);
   const exercises = new Set();
-  for (const c of data.cases.filter(c => c.training)) {
+  for (const c of data.cases.filter(c => c.training && [1,2].includes(c.training.lesson))) {
     const { lesson, caseNumber, slide, reviewSlide } = c.training;
     const key = `${lesson}/${caseNumber}`;
     assert.ok(!exercises.has(key), `Duplicated exercise ${key}`);
@@ -109,4 +109,25 @@ test('local server serves the portal and assets, and keeps repository files priv
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
+});
+
+test('all six Lead exercises preserve the basic and advanced lesson 3 cases and full standard links', async () => {
+  vm.runInNewContext(await readFile(new URL('../assets/materials.js', import.meta.url), 'utf8'), context);
+  const materials = context.window.PORTAL_MATERIALS;
+  const cases = data.cases.filter(c => String(c.training?.lesson).startsWith('3'));
+  assert.equal(cases.length, 6);
+  const keys = new Set();
+  for (const c of cases) {
+    const lesson = materials.lessons.find(l => l.id === c.training.lesson);
+    const slide = lesson.slides.find(s => s.number === c.training.slide);
+    assert.match(slide.paragraphs.join(' '), new RegExp('Кейс ' + c.training.caseNumber));
+    keys.add(lesson.id + '/' + c.training.caseNumber);
+    assert.ok(c.question && c.why && c.choices[c.correct]);
+    for (const key of c.ruleIds) {
+      const rule = data.practiceRules[key];
+      assert.equal(rule.standard, 4);
+      assert.ok(materials.standards.find(s => s.id === 4).blocks.some(b => b.id === rule.block));
+    }
+  }
+  assert.equal(keys.size, 6);
 });
