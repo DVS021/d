@@ -1,4 +1,4 @@
-import { guidedTurn, roles, voiceText } from './engine.js?v=6ddc595b5532';
+import { guidedTurn, roles, voiceText } from './engine.js?v=4ea8fd3b980a';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
@@ -24,17 +24,20 @@ function status(text, speaking = false) {
   $('voiceStatus').replaceChildren(document.createElement('span'), document.createTextNode(text));
   scene.classList.toggle('is-speaking', speaking);
   $('stop').disabled = !speaking;
+  if (!speaking) { cancelAnimationFrame(meter); scene.style.setProperty('--mouth-open', '0'); }
 }
 function animate() {
   if (!scene.classList.contains('is-speaking')) return;
-  let value = .3 + Math.abs(Math.sin(performance.now() / 90)) * .7;
+  let value = Math.abs(Math.sin(performance.now() / 90));
   if (analyser) {
     const data = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteTimeDomainData(data);
     const energy = data.reduce((sum, x) => sum + (x - 128) ** 2, 0);
-    value = Math.min(1.5, .15 + Math.sqrt(energy / data.length) / 18);
+    const rms = Math.sqrt(energy / data.length) / 128;
+    value = rms < .018 ? 0 : Math.min(1, (rms - .018) * 12);
   }
   scene.style.setProperty('--mouth', value);
+  scene.style.setProperty('--mouth-open', Math.min(1, value * 2));
   meter = requestAnimationFrame(animate);
 }
 function audioContext() {
@@ -58,8 +61,8 @@ function stopVoice() {
   window.speechSynthesis?.cancel();
   status('Готов к разговору');
 }
-audio.addEventListener('play', () => { status('Тренер говорит', true); animate(); });
-for (const event of ['pause', 'ended', 'error']) audio.addEventListener(event, () => {
+audio.addEventListener('playing', () => { cancelAnimationFrame(meter); status('Тренер говорит', true); animate(); });
+for (const event of ['pause', 'ended', 'error', 'waiting', 'seeking']) audio.addEventListener(event, () => {
   cancelAnimationFrame(meter);
   status('Слушаю ваш ответ');
 });

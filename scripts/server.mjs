@@ -40,6 +40,7 @@ const allowedFiles = new Map([
 for (const [name,mime] of [['standard-4-v2.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],['lesson-3-presenter-notes.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],['lesson-3-lead.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation'],['lesson-3-lead-advanced.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation']]) allowedFiles.set('/documents/'+name,['documents/'+name,mime]);
 
 allowedFiles.set('/trainer/portrait-cartoon-20261109.png',['trainer/portrait-cartoon-20261109.png','image/png']);
+allowedFiles.set('/trainer/portrait-speaking-20261109.png',['trainer/portrait-speaking-20261109.png','image/png']);
 const mediaTypes = { mp3: 'audio/mpeg', mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg',
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', vtt: 'text/vtt; charset=utf-8' };
 

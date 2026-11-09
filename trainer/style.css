@@ -17,3 +17,5 @@
 @media(max-width:400px){.embedded .mentor-panel{padding:22px 18px}.embedded .intro h1{font-size:26px}.embedded .avatar-scene{width:132px;right:3px}.embedded .avatar{width:140px}.embedded .halo{width:125px;height:125px}.embedded .halo-inner{width:110px;height:110px}.embedded .dialogue-panel{padding:20px 15px}.embedded .intro p{font-size:10px}}
 
 .trainer-portrait{object-fit:contain;object-position:center bottom}.is-speaking .trainer-portrait{animation:portrait-speak 3s ease-in-out infinite}@keyframes portrait-speak{50%{transform:translateY(-2px)}}@media(prefers-reduced-motion:reduce){.is-speaking .trainer-portrait{animation:none}}
+
+.portrait-mouth{opacity:var(--mouth-open,0);transition:opacity 45ms linear;pointer-events:none}.avatar-scene:not(.is-speaking) .portrait-mouth{opacity:0}
