@@ -11,7 +11,7 @@ export async function trainerExport(root) {
   const script = [plain(data), audio, engine, plain(app)].join('\n').replaceAll('</script', '<\\/script');
   html = html.replace(/<link rel="stylesheet" href="style\.css[^\"]*">/, () => '<style>' + css + '</style>')
     .replace(/<script type="module" src="app\.js[^\"]*"><\/script>/, () => '<script defer>window.addEventListener("DOMContentLoaded",()=>{\n' + script + '\n});</script>');
-  for (const name of ['portrait-cartoon-20261109.png','portrait-speaking-20261109.png']) {
+  for (const name of ['portrait-cartoon-20261109.png','portrait-speaking-natural-20261109.png']) {
     const portrait = (await readFile(new URL('trainer/'+name,root))).toString('base64');
     html = html.replace('href="'+name+'"', () => 'href="data:image/png;base64,'+portrait+'"');
   }
