@@ -1,4 +1,4 @@
-import { guidedTurn, roles } from './engine.js?v=37fc0b99684d';
+import { guidedTurn, roles, voiceText } from './engine.js?v=845eb3e33c0e';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
@@ -74,7 +74,7 @@ async function say(response) {
     return;
   }
   if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(response.speech + ' ' + response.question);
+    const utterance = new SpeechSynthesisUtterance(voiceText(response));
     utterance.lang = 'ru-RU'; utterance.rate = .95;
     const voice = speechSynthesis.getVoices().find(v => /^ru/.test(v.lang));
     if (voice) utterance.voice = voice;

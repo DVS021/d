@@ -9,6 +9,19 @@ const inputs = [
   { action: 'intro' }, { action: 'case' },
   ...['Кто проверяет первый отклик?', 'Сколько минут SLA?', 'Зачем нужны стандарты?', 'Кейс по УАТ', 'Мой ответ', 'Я проверяю SLA', 'первый отклик'].map(text => ({ action: 'message', text })),
 ];
+test('Russian speech expands abbreviations and uses the right case for numbers without changing the visible text', () => {
+  const response = {
+    speech: 'РОПу нужен расчёт по 1С:УАТ для 60 автомобилей. Клиент просит КП.',
+    question: 'Кто проверяет SLA?',
+  };
+  const spoken = voiceText(response);
+  assert.match(spoken, /руководителю отдела продаж/);
+  assert.match(spoken, /один эс, управление автотранспортом/);
+  assert.match(spoken, /для шестидесяти автомобилей/);
+  assert.match(spoken, /коммерческое предложение/);
+  assert.doesNotMatch(spoken, /РОП|SLA|КП|1С:УАТ|60/);
+  assert.match(response.speech, /РОПу нужен расчёт по 1С:УАТ/);
+});
 test('all role dialogues have readable sources and a recorded audio reply', async () => {
   assert.deepEqual(Object.keys(roles), ['general', 'employee', 'dispatcher', 'manager', 'controller']);
   assert.equal(sources.filter(s => s.type === 'lesson_text').length, 60);

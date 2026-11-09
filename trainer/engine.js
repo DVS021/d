@@ -1,5 +1,5 @@
-import { roles, sources } from './data.js?v=37fc0b99684d';
-import { audioMap } from './audio-map.js?v=37fc0b99684d';
+import { roles, sources } from './data.js?v=845eb3e33c0e';
+import { audioMap } from './audio-map.js?v=845eb3e33c0e';
 export { roles, sources };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);
@@ -9,7 +9,27 @@ export function publicSource(id) {
   return { id, title: source.type === 'lesson_text' ? `Урок ${source.lesson} · слайд ${source.slide}` : source.title,
     text: source.text, url: source.type === 'lesson_text' ? new URL(source.reference, portalBase).href : null };
 }
-export function voiceText(response) { return response.speech + ' ' + response.question; }
+// The written materials keep their terms; speech expands abbreviations and numbers.
+export function voiceText(response) {
+  return (response.speech + '\n\n' + response.question)
+    .replace(/1С\s*:\s*УАТ/giu, 'один эс, управление автотранспортом')
+    .replace(/о КП/g, 'о коммерческом предложении')
+    .replace(/КП(?=$|[^а-яё])/gu, 'коммерческое предложение')
+    .replace(/РОПа(?=$|[^а-яё])/giu, 'руководителя отдела продаж')
+    .replace(/РОПу(?=$|[^а-яё])/giu, 'руководителю отдела продаж')
+    .replace(/РОПом(?=$|[^а-яё])/giu, 'руководителем отдела продаж')
+    .replace(/РОП(?=$|[^а-яё])/giu, 'руководитель отдела продаж')
+    .replace(/ОП(?=$|[^а-яё])/gu, 'отдела продаж')
+    .replace(/Проверку первого отклика и SLA выполняют/gu, 'Первый ответ клиенту и соблюдение сроков проверяют')
+    .replace(/SLA/gi, 'сроков первого ответа')
+    .replace(/для 60 автомобилей/gu, 'для шестидесяти автомобилей')
+    .replace(/60 автомобилей/gu, 'шестьдесят автомобилей')
+    .replace(/№\s*2/gu, 'номер два')
+    .replace(/[«»]/gu, '')
+    .replace(/[—–]/gu, ',')
+    .replace(/[^\S\n]+/gu, ' ')
+    .trim();
+}
 function result(role, speech, question, ids, stage = 'reflection') {
   const response = { role, mode: 'guided', speech, question, stage, sources: [...new Set(ids)].map(publicSource).filter(Boolean) };
   const file = audioMap[voiceText(response)];

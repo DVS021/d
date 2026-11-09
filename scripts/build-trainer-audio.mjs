@@ -1,20 +1,23 @@
-// Optional maintainer task. Runtime uses only these generated MP3 files.
-// node scripts/build-trainer-audio.mjs [path/to/extracted/espeak-ng/root]
+// Maintainer task: generate all dialogue audio locally, before a normal static build.
+// node scripts/build-trainer-audio.mjs --python /path/to/venv/bin/python --model /path/to/ru_RU-denis-medium.onnx
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile, rm, mkdtemp } from 'node:fs/promises';
+import { mkdir, writeFile, rm, mkdtemp, readdir, rename, copyFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { guidedTurn, roles, voiceText } from '../trainer/engine.js';
 
+const { values } = parseArgs({ options: { python: { type: 'string', default: 'python3' }, model: { type: 'string' } } });
+if (!values.model) throw new Error('Pass --model with the path to ru_RU-denis-medium.onnx. See trainer/VOICE.md.');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const unpacked = process.argv[2] && resolve(process.argv[2]);
-const run = (command, args, input) => new Promise((done, fail) => {
-  const process = spawn(command, args, { stdio: ['pipe', 'ignore', 'pipe'] });
-  let error = ''; process.stderr.on('data', bytes => error += bytes);
-  process.on('error', fail); process.on('close', code => code === 0 ? done() : fail(new Error(error)));
-  process.stdin.end(input);
+const model = resolve(values.model);
+const recipe = 'piper-1.3.0-denis-medium-ru-v1-length1.08-pause0.28-64k';
+const run = (command, args, progress = false) => new Promise((done, fail) => {
+  const child = spawn(command, args, { stdio: ['ignore', progress ? 'inherit' : 'ignore', 'pipe'] });
+  let error = ''; child.stderr.on('data', bytes => error += bytes);
+  child.on('error', fail); child.on('close', code => code === 0 ? done() : fail(new Error(error)));
 });
 const samples = [
   { action: 'intro' }, { action: 'case' },
@@ -30,17 +33,22 @@ const directory = join(root, 'trainer/audio'); await mkdir(directory, { recursiv
 const temporary = await mkdtemp(join(tmpdir(), 'rarus-trainer-'));
 const audioMap = {};
 try {
-  for (const text of texts) {
-    const id = createHash('sha256').update(text).digest('hex').slice(0, 16);
-    const wav = join(temporary, id + '.wav');
-    const voiceArgs = ['-v', 'ru', '-s', '155', '-p', '47', '-w', wav, '--stdin'];
-    if (unpacked) {
-      const libs = join(unpacked, 'usr/lib/x86_64-linux-gnu');
-      await run('/lib64/ld-linux-x86-64.so.2', ['--library-path', libs, join(unpacked, 'usr/bin/espeak-ng'), '--path=' + libs, ...voiceArgs], text);
-    } else await run(process.env.TRAINER_ESPEAK_BIN || 'espeak-ng', voiceArgs, text);
-    await run('ffmpeg', ['-v', 'error', '-y', '-i', wav, '-ac', '1', '-ar', '22050', '-codec:a', 'libmp3lame', '-b:a', '48k', join(directory, id + '.mp3')]);
+  const items = [...texts].map(text => {
+    const id = createHash('sha256').update(recipe + '\n' + text).digest('hex').slice(0, 16);
     audioMap[text] = 'audio/' + id + '.mp3';
+    return { text, file: join(temporary, id + '.wav'), id };
+  });
+  const manifest = join(temporary, 'manifest.json'); await writeFile(manifest, JSON.stringify(items));
+  await run(values.python, [join(root, 'scripts/synthesize-trainer.py'), '--model', model, '--manifest', manifest], true);
+  for (const item of items) {
+    await run('ffmpeg', ['-v', 'error', '-y', '-i', item.file, '-ac', '1', '-ar', '22050', '-af', 'loudnorm=I=-18:TP=-2:LRA=7', '-codec:a', 'libmp3lame', '-b:a', '64k', join(temporary, item.id + '.mp3')]);
   }
-  await writeFile(join(root, 'trainer/audio-map.js'), 'export const audioMap = ' + JSON.stringify(audioMap, null, 2) + ';\n');
-  console.log(`Generated ${texts.size} Russian audio replies.`);
+  // Publish the complete generated set together, then remove superseded recordings.
+  for (const item of items) await copyFile(join(temporary, item.id + '.mp3'), join(directory, item.id + '.mp3'));
+  const mapFile = join(root, 'trainer/audio-map.js');
+  await writeFile(mapFile + '.tmp', 'export const audioMap = ' + JSON.stringify(audioMap, null, 2) + ';\n');
+  await rename(mapFile + '.tmp', mapFile);
+  const used = new Set(items.map(item => item.id + '.mp3'));
+  for (const name of await readdir(directory)) if (/^[a-f0-9]{16}\.mp3$/.test(name) && !used.has(name)) await rm(join(directory, name));
+  console.log(`Generated ${texts.size} Russian replies with Piper Denis.`);
 } finally { await rm(temporary, { recursive: true, force: true }); }
