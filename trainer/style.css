@@ -19,3 +19,9 @@
 .trainer-portrait{object-fit:contain;object-position:center bottom}.is-speaking .trainer-portrait{animation:portrait-speak 3s ease-in-out infinite}@keyframes portrait-speak{50%{transform:translateY(-2px)}}@media(prefers-reduced-motion:reduce){.is-speaking .trainer-portrait{animation:none}}
 
 .portrait-mouth{opacity:var(--mouth-open,0);transition:opacity 45ms linear;pointer-events:none}.avatar-scene:not(.is-speaking) .portrait-mouth{opacity:0}
+
+.case-topic{padding-top:12px}.case-topic label{display:block;font-size:11px;font-weight:600;margin-bottom:5px}.case-topic select{width:100%;max-width:100%;padding:9px;border:1px solid #d8e4e9;border-radius:10px;background:#fff;color:#335767;font-size:12px;text-overflow:ellipsis}
+
+.case-topic a{display:block;color:#067a9f;font-size:11px;margin-top:6px}.case-topic a[hidden]{display:none}
+
+.case-controls{padding:8px 0 12px;border-bottom:1px solid #eff2f4}@media(max-width:820px){.embedded .dialogue-panel{height:720px;min-height:720px;max-height:720px}}

@@ -1597,7 +1597,7 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-060",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Самостоятельный предмет продажи"
   },
   "applied-two-entities-license-purchase-4-80": {
     "kind": "standard",
@@ -1609,13 +1609,13 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-060",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Самостоятельный предмет продажи"
   },
   "applied-consultation-becomes-new-sale-1-41": {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-041",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Консультация ЛК"
   },
   "applied-consultation-becomes-new-sale-3-125": {
     "kind": "standard",
@@ -1639,13 +1639,13 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-041",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Консультация ЛК"
   },
   "applied-consultation-contract-scope-3-151": {
     "kind": "standard",
     "standard": 3,
     "block": "std-3-block-151",
-    "title": "Стандарт №3 · Правило по ситуации"
+    "title": "Стандарт №3 · Маршрут несбытового обращения"
   },
   "applied-quote-to-invoice-same-subject-3-115": {
     "kind": "standard",
@@ -1657,7 +1657,7 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-060",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Самостоятельный предмет продажи"
   },
   "applied-head-office-project-or-branch-purchase-4-38": {
     "kind": "standard",
@@ -1675,19 +1675,19 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-060",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Самостоятельный предмет продажи"
   },
   "applied-payer-changed-without-new-need-1-60": {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-060",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Самостоятельный предмет продажи"
   },
   "applied-payer-changed-without-new-need-3-120": {
     "kind": "standard",
     "standard": 3,
     "block": "std-3-block-120",
-    "title": "Стандарт №3 · Правило прикрепления входящего обращения в случае двух и более активных объектов в ЕИС"
+    "title": "Стандарт №3 · Выбор объекта по предмету обращения"
   },
   "applied-invoice-ready-qualification-4-50": {
     "kind": "standard",
@@ -1729,7 +1729,7 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 1,
     "block": "std-1-block-049",
-    "title": "Стандарт №1 · Правило по ситуации"
+    "title": "Стандарт №1 · Активный Лид"
   },
   "applied-old-sale-closed-new-need-4-136": {
     "kind": "standard",
@@ -1747,7 +1747,7 @@ window.PORTAL_DATA = (() => {
     "kind": "standard",
     "standard": 3,
     "block": "std-3-block-155",
-    "title": "Стандарт №3 · Правило по ситуации"
+    "title": "Стандарт №3 · Контроль принятия обращения"
   }
 });
   return {standards,glossary,cases,quiz,scenarios,sources,practiceRules,navigatorCases,workQuestions,practiceSource,caseSource:'https://docs.google.com/document/d/1lSEP4g41kbZiWSbumAKLnF5krXYLtbNzirKZSd9-6y8/edit',sourceNote:'Памятки №1–6 основаны на ранее найденных документах Google Drive (17.09.2026; №5 — 25.09.2026). Названия №7–18 сверены с файлом «Пакет единых стандартов продаж в сегменте СМБ». Присланные редакции 2 требуют отдельной постатейной выверки перед использованием сайта как нормативного источника.'};

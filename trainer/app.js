@@ -1,11 +1,11 @@
-import { guidedTurn, roles, voiceText } from './engine.js?v=208510b92858';
+import { guidedTurn, roles, voiceText, voiceCases } from './engine.js?v=af9a124f4846';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
 const embedded = window.parent !== window;
 const portalOrigin = new URL(document.baseURI).origin;
 document.documentElement.classList.toggle('embedded', embedded);
-const state = { role: 'general', voice: true, busy: false, request: 0 };
+const state = { role: 'general', voice: true, busy: false, request: 0, caseMode: false };
 let meter, context, analyser, mediaSource;
 const roleIcons = {
   general: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',
@@ -126,16 +126,20 @@ async function turn(action, text = '') {
   const request = ++state.request;
   audioContext(); stopVoice();
   try {
-    const response = guidedTurn({ role: state.role, action, text });
+    if(action==='case'||action==='case-answer')state.caseMode=true;
+    if(action==='intro')state.caseMode=false;
+    const response = guidedTurn({ role: state.role, action, text, caseId:state.caseMode?$('caseTopic').value:'' });
     if (text) message('user', text);
     message('tutor', response.speech, response);
-    $('connectionStatus').textContent = 'Учебный диалог по урокам 1 и 2';
+    $('connectionStatus').textContent = state.caseMode?'Разбор рабочей ситуации':'Объяснение по материалам уроков';
     await say(response);
   } finally { if (request === state.request) state.busy = false; }
 }
 function chooseRole(role, announce = true) {
   if (!Object.hasOwn(roles, role)) return;
-  state.request++; stopVoice(); state.role = role; state.busy = false;
+  state.request++; stopVoice(); state.role = role; state.busy = false; state.caseMode=false;
+  $('caseTopic').replaceChildren(...[{id:'',title:'Передача запроса по 1С:УАТ'},...voiceCases.filter(c=>role==='general'||c.roles.includes(role))].map(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.title;return o}));
+  $('casePracticeLink').hidden=true;
   $('role').value = role;
   document.documentElement.dataset.role = role;
   const profile = roles[role];
@@ -162,9 +166,12 @@ chooseRole(Object.hasOwn(roles, initial) ? initial : 'general', false);
 $('role').onchange = event => chooseRole(event.target.value);
 $('start').onclick = () => turn('intro');
 $('caseButton').onclick = () => turn('case', 'Разберём рабочую ситуацию');
+$('caseAnswer').onclick=()=>turn('case-answer');
+function updateCaseLink(){const topic=voiceCases.find(c=>c.id===$('caseTopic').value);const link=$('casePracticeLink');link.hidden=!topic;if(topic)link.href=topic.caseUrl;}
+$('caseTopic').onchange=()=>{stopVoice();state.caseMode=false;updateCaseLink();$('messages').replaceChildren();const topic=voiceCases.find(c=>c.id===$('caseTopic').value);message('tutor',topic?'Разберём ситуацию: «'+topic.title+'». Можно послушать условие или сразу перейти к решению.':'Разберём передачу запроса по 1С:УАТ. Нажмите «Послушать ситуацию».');};
 $('stop').onclick = stopVoice;
 $('voiceToggle').onclick = () => setVoice(!state.voice);
-for (const button of document.querySelectorAll('[data-prompt]')) button.onclick = () => turn('message', button.dataset.prompt);
+for (const button of document.querySelectorAll('[data-prompt]')) button.onclick = () => {state.caseMode=false;turn('message', button.dataset.prompt);};
 $('chatForm').onsubmit = event => {
   event.preventDefault(); const text = $('messageInput').value.trim();
   if (!text || state.busy) return;

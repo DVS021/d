@@ -1,18 +1,25 @@
-import { roles, sources } from './data.js?v=208510b92858';
-import { audioMap } from './audio-map.js?v=208510b92858';
-export { roles, sources };
+import { roles, sources, voiceCases } from './data.js?v=af9a124f4846';
+import { audioMap } from './audio-map.js?v=af9a124f4846';
+export { roles, sources, voiceCases };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);
+function portalURL(reference){
+ if(typeof document!=='undefined'&&globalThis.location?.href==='about:srcdoc'&&reference.startsWith('index.html#'))return new URL(reference.slice('index.html'.length),document.baseURI).href;
+ return new URL(reference,portalBase).href;
+}
+voiceCases.forEach(c=>c.caseUrl=portalURL(c.caseUrl));
 export function publicSource(id) {
   const source = byId.get(id);
   if (!source) return null;
   return { id, title: source.type === 'lesson_text' ? `Урок ${source.lesson} · слайд ${source.slide}` : source.title,
-    text: source.text, url: source.type === 'lesson_text' ? new URL(source.reference, portalBase).href : null };
+    text: source.text, url: ['lesson_text','portal_rule'].includes(source.type) ? portalURL(source.reference) : null };
 }
 // The written materials keep their terms; speech expands abbreviations and numbers.
 export function voiceText(response) {
   return (response.speech + '\n\n' + response.question)
     .replace(/1С\s*:\s*УАТ/giu, 'один эс, управление автотранспортом')
+    .replace(/ПП(?=$|[^а-яё])/gu, 'программных продуктов')
+    .replace(/[вВ] ЕИС/gu, 'в единой информационной системе')
     .replace(/о КП/g, 'о коммерческом предложении')
     .replace(/КП(?=$|[^а-яё])/gu, 'коммерческое предложение')
     .replace(/РОПа(?=$|[^а-яё])/giu, 'руководителя отдела продаж')
@@ -33,12 +40,24 @@ export function voiceText(response) {
 function result(role, speech, question, ids, stage = 'reflection') {
   const response = { role, mode: 'guided', speech, question, stage, sources: [...new Set(ids)].map(publicSource).filter(Boolean) };
   const file = audioMap[voiceText(response)];
-  if (file) response.audioUrl = new URL(file, import.meta.url).href;
+  if(file){
+    const url=new URL(file, import.meta.url);
+    if(typeof document!=='undefined'&&url.protocol!=='data:'){
+      const script=document.querySelector('script[type="module"][src]');
+      const version=script&&new URL(script.src,document.baseURI).searchParams.get('v');
+      if(version)url.searchParams.set('v',version);
+    }
+    response.audioUrl=url.href;
+  }
   return response;
 }
 const handoff='Клиент просит подобрать 1С:УАТ для 60 автомобилей. Расчёт нужен до пятницы. В профильный отдел написали только: «Клиенту нужен расчёт по УАТ». На следующий день неизвестно, кто принял обращение.';
-export function guidedTurn({role,action,text=''}){
+export function guidedTurn({role,action,text='',caseId=''}){
  const p=roles[role];if(!p)throw new Error('Unknown role');
+ const topic=voiceCases.find(c=>c.id===caseId);
+ if(topic&&action==='case')return result(role,topic.question,'Что вы сделаете и что запишете в ЕИС?',topic.sources,'case');
+ if(topic&&['case-answer','message'].includes(action))return result(role,topic.answer+' В ЕИС нужно сохранить: '+topic.record,'Сравните своё решение с разбором. Какой шаг вы могли бы пропустить?',topic.sources,'review');
+ if(action==='case-answer')return guidedTurn({role,action:'message',text:'Мой ответ'});
  if(action==='intro')return result(role,p.opening,p.question,p.sources,'question');
  if(action==='case')return result(role,handoff+' '+(role==='dispatcher'?'Для вашей роли важно передать полную задачу и убедиться в принятии конкретным исполнителем.':role==='controller'?'Сопоставьте исходный запрос с переданной задачей и подтверждением принятия.':role==='manager'?'Нужно восстановить контекст и организовать принятие конкретным сотрудником.':'Посмотрите, какие сведения и подтверждение ответственности здесь потерялись.'),'Как вы продолжите работу в своей роли?',['lesson-2-slide-27','lesson-2-slide-28','confirmed-role-policy'],'case');
  const t=text.toLocaleLowerCase('ru-RU').replace(/ё/g,'е');
