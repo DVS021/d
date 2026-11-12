@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { guidedTurn, roles, sources, voiceText } from '../trainer/engine.js';
 import { audioMap } from '../trainer/audio-map.js';
+import { audioLevels } from '../trainer/audio-levels.js';
 import { createServer } from '../scripts/server.mjs';
 
 const inputs = [
@@ -21,6 +22,10 @@ test('Russian speech expands abbreviations and uses the right case for numbers w
   assert.match(spoken, /коммерческое предложение/);
   assert.doesNotMatch(spoken, /РОП|SLA|КП|1С:УАТ|60/);
   assert.match(response.speech, /РОПу нужен расчёт по 1С:УАТ/);
+  const extra=voiceText({speech:'CRM и ИТС. Есть доступный email. По правилам ЕИС.',question:''});
+  assert.match(extra,/си эр эм и и тэ эс/);
+  assert.match(extra,/адрес электронной почты/);
+  assert.match(extra,/правилам единой информационной системы/);
 });
 test('all role dialogues have readable sources and a recorded audio reply', async () => {
   assert.deepEqual(Object.keys(roles), ['general', 'employee', 'dispatcher', 'manager', 'controller']);
@@ -52,7 +57,7 @@ test('static trainer works without an API and audio supports seeking', async () 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
-    for (const file of ['index.html', 'app.js', 'engine.js', 'data.js', 'audio-map.js', 'style.css']) {
+    for (const file of ['index.html', 'app.js', 'engine.js', 'data.js', 'audio-map.js', 'audio-levels.js', 'style.css']) {
       assert.equal((await fetch(base + '/trainer/' + file)).status, 200);
     }
     const file = Object.values(audioMap)[0];
@@ -63,6 +68,14 @@ test('static trainer works without an API and audio supports seeking', async () 
     assert.equal((await fetch(base + '/api/turn')).status, 404);
     const app = await readFile(new URL('../trainer/app.js', import.meta.url), 'utf8');
     assert.doesNotMatch(app, /fetch\(|\/api\//);
+    assert.doesNotMatch(app, /createMediaElementSource|SpeechSynthesisUtterance/);
     assert.match(app, /event\.source !== window\.parent/);
   } finally { await new Promise(resolve => server.close(resolve)); }
+});
+
+test('every recording has mouth levels without routing its sound through Web Audio',()=>{
+ for(const [text,file] of Object.entries(audioMap)){
+  const levels=Buffer.from(audioLevels[text]||'','base64');
+  assert.ok(levels.length>20&&levels.some(x=>x>0),file);
+ }
 });

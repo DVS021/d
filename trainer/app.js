@@ -1,4 +1,4 @@
-import { guidedTurn, roles, voiceText, voiceCases } from './engine.js?v=af9a124f4846';
+import { guidedTurn, roles, voiceCases } from './engine.js?v=5bc32411cad5';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
@@ -6,7 +6,7 @@ const embedded = window.parent !== window;
 const portalOrigin = new URL(document.baseURI).origin;
 document.documentElement.classList.toggle('embedded', embedded);
 const state = { role: 'general', voice: true, busy: false, request: 0, caseMode: false };
-let meter, context, analyser, mediaSource;
+let meter, playback = 0, mouthLevels = '';
 const roleIcons = {
   general: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',
   employee: '<circle cx="12" cy="7" r="4"/><path d="M5 21v-3a7 7 0 0 1 14 0v3M9 18h6"/>',
@@ -28,70 +28,66 @@ function status(text, speaking = false) {
 }
 function animate() {
   if (!scene.classList.contains('is-speaking')) return;
-  let value = Math.abs(Math.sin(performance.now() / 90));
-  if (analyser) {
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteTimeDomainData(data);
-    const energy = data.reduce((sum, x) => sum + (x - 128) ** 2, 0);
-    const rms = Math.sqrt(energy / data.length) / 128;
-    value = rms < .018 ? 0 : Math.min(1, (rms - .018) * 12);
-  }
+  const value = mouthLevels ? (mouthLevels.charCodeAt(Math.floor(audio.currentTime / .08)) || 0) / 255 : 0;
   scene.style.setProperty('--mouth', value);
   scene.style.setProperty('--mouth-open', Math.min(1, value * 2));
   meter = requestAnimationFrame(animate);
 }
-function audioContext() {
-  try {
-    context ??= new (window.AudioContext || window.webkitAudioContext)();
-    if (!mediaSource) {
-      mediaSource = context.createMediaElementSource(audio);
-      analyser = context.createAnalyser();
-      analyser.fftSize = 256;
-      mediaSource.connect(analyser);
-      analyser.connect(context.destination);
-    }
-    context.resume().catch(() => {});
-  } catch { /* Native audio still works if Web Audio is unavailable. */ }
-}
-function stopVoice() {
+function stopVoice(clear = false) {
+  playback++;
   cancelAnimationFrame(meter);
   audio.pause();
-  audio.removeAttribute('src');
-  audio.load();
-  window.speechSynthesis?.cancel();
+  if (clear) {
+    audio.removeAttribute('src');
+    audio.load();
+  } else if (audio.readyState) audio.currentTime = 0;
   status('Готов к разговору');
 }
-audio.addEventListener('playing', () => { cancelAnimationFrame(meter); status('Тренер говорит', true); animate(); });
-for (const event of ['pause', 'ended', 'error', 'waiting', 'seeking']) audio.addEventListener(event, () => {
+function showPlayback() {
+  cancelAnimationFrame(meter); status('Тренер говорит', true); animate();
+  $('connectionStatus').textContent = 'Запись воспроизводится';
+}
+audio.addEventListener('playing', showPlayback);
+audio.addEventListener('seeked', () => { if (!audio.paused && !audio.ended) showPlayback(); });
+for (const event of ['pause', 'ended', 'waiting', 'seeking']) audio.addEventListener(event, () => {
   cancelAnimationFrame(meter);
-  status('Слушаю ваш ответ');
+  status(event === 'waiting' ? 'Загружаю запись…' : 'Слушаю ваш ответ');
+});
+audio.addEventListener('error', () => {
+  if (!audio.hasAttribute('src')) return;
+  status('Запись не загрузилась');
+  $('connectionStatus').textContent = 'Не удалось загрузить запись. Нажмите «Прослушать» под ответом, чтобы повторить.';
 });
 async function say(response) {
   if (!state.voice) return;
-  stopVoice();
+  stopVoice(true);
+  const request = playback;
   if (response.audioUrl) {
-    audioContext();
+    mouthLevels = response.audioLevels ? atob(response.audioLevels) : '';
+    $('audioTitle').textContent = response.stage === 'case' ? 'Условие ситуации' : response.stage === 'review' ? 'Разбор решения' : 'Объяснение тренера';
+    $('audioPlayer').hidden = false;
     audio.src = response.audioUrl;
+    status('Загружаю запись…');
     try { await audio.play(); }
-    catch { $('connectionStatus').textContent = 'Нажмите «Прослушать» под ответом, чтобы включить голос.'; }
+    catch (error) {
+      if (request !== playback || error.name === 'AbortError') return;
+      status('Нажмите ▶ для воспроизведения');
+      $('connectionStatus').textContent = audio.error ? 'Не удалось загрузить запись. Повторите прослушивание.' : 'Нажмите ▶ в плеере или «Прослушать» под ответом.';
+    }
     return;
   }
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(voiceText(response));
-    utterance.lang = 'ru-RU'; utterance.rate = .95;
-    const voice = speechSynthesis.getVoices().find(v => /^ru/.test(v.lang));
-    if (voice) utterance.voice = voice;
-    utterance.onstart = () => { status('Тренер говорит', true); animate(); };
-    utterance.onend = utterance.onerror = () => { cancelAnimationFrame(meter); status('Слушаю ваш ответ'); };
-    speechSynthesis.speak(utterance);
-  } else $('connectionStatus').textContent = 'Ответ показан текстом. Голос в этом браузере недоступен.';
+  $('audioPlayer').hidden = true;
+  $('connectionStatus').textContent = 'Для этого ответа запись пока недоступна. Прочитайте текст разбора.';
 }
 function showSource(source) {
   $('sourceTitle').textContent = source.title;
   $('sourceText').textContent = source.text;
   const link = $('sourceLink');
   link.hidden = !source.url;
-  if (source.url) link.href = source.url;
+  if (source.url) {
+    link.href = source.url;
+    link.textContent = source.url.includes('#standard/') ? 'Открыть правило ↗' : 'Открыть слайд ↗';
+  }
   else link.removeAttribute('href');
   $('sourceDialog').showModal();
 }
@@ -115,7 +111,7 @@ function message(kind, text, response) {
   }
   if (response) {
     const replay = document.createElement('button'); replay.className = 'replay'; replay.textContent = '▷ Прослушать';
-    replay.onclick = () => { if (!state.voice) setVoice(true); audioContext(); say(response); };
+    replay.onclick = () => { if (!state.voice) setVoice(true); say(response); };
     article.append(replay);
   }
   $('messages').append(article); $('messages').scrollTop = $('messages').scrollHeight;
@@ -124,7 +120,7 @@ async function turn(action, text = '') {
   if (state.busy) return;
   state.busy = true;
   const request = ++state.request;
-  audioContext(); stopVoice();
+  stopVoice(true);
   try {
     if(action==='case'||action==='case-answer')state.caseMode=true;
     if(action==='intro')state.caseMode=false;
@@ -137,9 +133,10 @@ async function turn(action, text = '') {
 }
 function chooseRole(role, announce = true) {
   if (!Object.hasOwn(roles, role)) return;
-  state.request++; stopVoice(); state.role = role; state.busy = false; state.caseMode=false;
+  state.request++; stopVoice(true); state.role = role; state.busy = false; state.caseMode=false;
   $('caseTopic').replaceChildren(...[{id:'',title:'Передача запроса по 1С:УАТ'},...voiceCases.filter(c=>role==='general'||c.roles.includes(role))].map(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.title;return o}));
   $('casePracticeLink').hidden=true;
+  $('audioPlayer').hidden=true;
   $('role').value = role;
   document.documentElement.dataset.role = role;
   const profile = roles[role];
@@ -152,11 +149,21 @@ function chooseRole(role, announce = true) {
   else { try { localStorage.setItem('dvis-role', JSON.stringify(role)); } catch {} }
   resize();
 }
-function setVoice(on) {
-  state.voice = on; $('voiceToggle').setAttribute('aria-pressed', String(on));
+function voiceLabel(on) {
+  $('voiceToggle').setAttribute('aria-pressed', String(on));
   $('voiceToggle').textContent = on ? 'Звук включён' : 'Звук выключен';
+}
+function setVoice(on) {
+  state.voice = on; voiceLabel(on);
+  audio.muted = !on;
+  if (on && audio.volume === 0) audio.volume = 1;
   if (!on) stopVoice();
 }
+audio.addEventListener('volumechange', () => {
+  state.voice = !audio.muted && audio.volume > 0; voiceLabel(state.voice);
+  if (!state.voice) status('Звук выключен');
+  else if (!audio.paused) showPlayback();
+});
 $('role').replaceChildren(...Object.entries(roles).map(([id, profile]) => {
   const option = document.createElement('option'); option.value = id; option.textContent = profile.label; return option;
 }));
@@ -165,11 +172,11 @@ if (!Object.hasOwn(roles, initial)) { try { initial = JSON.parse(localStorage.ge
 chooseRole(Object.hasOwn(roles, initial) ? initial : 'general', false);
 $('role').onchange = event => chooseRole(event.target.value);
 $('start').onclick = () => turn('intro');
-$('caseButton').onclick = () => turn('case', 'Разберём рабочую ситуацию');
-$('caseAnswer').onclick=()=>turn('case-answer');
+$('caseButton').onclick = () => { setVoice(true); turn('case', 'Разберём рабочую ситуацию'); };
+$('caseAnswer').onclick=()=>{ setVoice(true); turn('case-answer'); };
 function updateCaseLink(){const topic=voiceCases.find(c=>c.id===$('caseTopic').value);const link=$('casePracticeLink');link.hidden=!topic;if(topic)link.href=topic.caseUrl;}
-$('caseTopic').onchange=()=>{stopVoice();state.caseMode=false;updateCaseLink();$('messages').replaceChildren();const topic=voiceCases.find(c=>c.id===$('caseTopic').value);message('tutor',topic?'Разберём ситуацию: «'+topic.title+'». Можно послушать условие или сразу перейти к решению.':'Разберём передачу запроса по 1С:УАТ. Нажмите «Послушать ситуацию».');};
-$('stop').onclick = stopVoice;
+$('caseTopic').onchange=()=>{state.request++;state.busy=false;stopVoice(true);state.caseMode=false;updateCaseLink();$('messages').replaceChildren();turn('case');};
+$('stop').onclick = () => stopVoice();
 $('voiceToggle').onclick = () => setVoice(!state.voice);
 for (const button of document.querySelectorAll('[data-prompt]')) button.onclick = () => {state.caseMode=false;turn('message', button.dataset.prompt);};
 $('chatForm').onsubmit = event => {

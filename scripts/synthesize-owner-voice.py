@@ -16,7 +16,11 @@ converter=ToneColorConverter(str(modeldir/'config.json'),device='cpu')
 converter.load_ckpt(str(modeldir/'checkpoint.pth'))
 items=json.loads(Path(a.manifest).read_text())
 # All baseline recordings use the same speaker. Their embedding is calculated once.
-src=converter.extract_se(items[0]['baseFile']);tgt=converter.extract_se(a.reference)
+src=converter.extract_se([x['baseFile'] for x in items[:5]])
+reference=Path(a.reference)
+references=sorted(str(x) for x in reference.glob('*.wav')) if reference.is_dir() else [str(reference)]
+if not references:raise ValueError('No owner-only reference recordings')
+tgt=converter.extract_se(references)
 class ConversionGraph(torch.nn.Module):
  def __init__(self,m):super().__init__();self.m=m
  def forward(self,spec,lengths,source,target):return self.m.voice_conversion(spec,lengths,source,target,tau=.3)[0]

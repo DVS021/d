@@ -1,5 +1,6 @@
-import { roles, sources, voiceCases } from './data.js?v=af9a124f4846';
-import { audioMap } from './audio-map.js?v=af9a124f4846';
+import { roles, sources, voiceCases } from './data.js?v=5bc32411cad5';
+import { audioMap } from './audio-map.js?v=5bc32411cad5';
+import { audioLevels } from './audio-levels.js?v=5bc32411cad5';
 export { roles, sources, voiceCases };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);
@@ -20,6 +21,10 @@ export function voiceText(response) {
     .replace(/1С\s*:\s*УАТ/giu, 'один эс, управление автотранспортом')
     .replace(/ПП(?=$|[^а-яё])/gu, 'программных продуктов')
     .replace(/[вВ] ЕИС/gu, 'в единой информационной системе')
+    .replace(/правилам ЕИС/gu, 'правилам единой информационной системы')
+    .replace(/ИТС(?=$|[^а-яё])/gu, 'и тэ эс')
+    .replace(/CRM/giu, 'си эр эм')
+    .replace(/email/giu, 'адрес электронной почты')
     .replace(/о КП/g, 'о коммерческом предложении')
     .replace(/КП(?=$|[^а-яё])/gu, 'коммерческое предложение')
     .replace(/РОПа(?=$|[^а-яё])/giu, 'руководителя отдела продаж')
@@ -48,6 +53,7 @@ function result(role, speech, question, ids, stage = 'reflection') {
       if(version)url.searchParams.set('v',version);
     }
     response.audioUrl=url.href;
+    response.audioLevels=audioLevels[voiceText(response)] || '';
   }
   return response;
 }
@@ -55,8 +61,8 @@ const handoff='Клиент просит подобрать 1С:УАТ для 60
 export function guidedTurn({role,action,text='',caseId=''}){
  const p=roles[role];if(!p)throw new Error('Unknown role');
  const topic=voiceCases.find(c=>c.id===caseId);
- if(topic&&action==='case')return result(role,topic.question,'Что вы сделаете и что запишете в ЕИС?',topic.sources,'case');
- if(topic&&['case-answer','message'].includes(action))return result(role,topic.answer+' В ЕИС нужно сохранить: '+topic.record,'Сравните своё решение с разбором. Какой шаг вы могли бы пропустить?',topic.sources,'review');
+ if(topic&&action==='case')return result(role,topic.question,topic.prompt||'Что вы сделаете и что запишете в ЕИС?',topic.sources,'case');
+ if(topic&&['case-answer','message'].includes(action))return result(role,topic.answer+' '+(topic.recordLabel||'В ЕИС нужно сохранить')+': '+topic.record,'Сравните своё решение с разбором. Какой шаг вы могли бы пропустить?',topic.sources,'review');
  if(action==='case-answer')return guidedTurn({role,action:'message',text:'Мой ответ'});
  if(action==='intro')return result(role,p.opening,p.question,p.sources,'question');
  if(action==='case')return result(role,handoff+' '+(role==='dispatcher'?'Для вашей роли важно передать полную задачу и убедиться в принятии конкретным исполнителем.':role==='controller'?'Сопоставьте исходный запрос с переданной задачей и подтверждением принятия.':role==='manager'?'Нужно восстановить контекст и организовать принятие конкретным сотрудником.':'Посмотрите, какие сведения и подтверждение ответственности здесь потерялись.'),'Как вы продолжите работу в своей роли?',['lesson-2-slide-27','lesson-2-slide-28','confirmed-role-policy'],'case');

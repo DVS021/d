@@ -14,7 +14,7 @@ if (!['owner','piper'].includes(values.engine)) throw new Error('Unknown voice e
 if (!values.model || (values.engine==='owner'&&(!values.reference||!values['base-python']||!values['base-model']))) throw new Error('Pass --model and, for owner voice, --reference. See trainer/VOICE.md.');
 const root = fileURLToPath(new URL('../', import.meta.url));
 const model = resolve(values.model);
-const recipe = values.engine==='owner'?'owner-openvoice-v2-onnx-20261111-v1':'piper-1.3.0-denis-medium-ru-v1-length1.08-pause0.28-64k';
+const recipe = values.engine==='owner'?'owner-openvoice-v2-multireference-20261112-v2':'piper-1.3.0-denis-medium-ru-v1-length1.08-pause0.28-64k';
 const run = (command, args, progress = false) => new Promise((done, fail) => {
   const child = spawn(command, args, { stdio: ['ignore', progress ? 'inherit' : 'ignore', 'pipe'] });
   let error = ''; child.stderr.on('data', bytes => error += bytes);
@@ -57,5 +57,6 @@ try {
   await rename(mapFile + '.tmp', mapFile);
   const used = new Set(items.map(item => item.id + '.mp3'));
   for (const name of await readdir(directory)) if (/^[a-f0-9]{16}\.mp3$/.test(name) && !used.has(name)) await rm(join(directory, name));
+  await run(process.execPath, [join(root, 'scripts/build-trainer-levels.mjs')], true);
   console.log(`Generated ${texts.size} Russian replies with ${values.engine} voice.`);
 } finally { if(!values['work-dir']) await rm(temporary, { recursive: true, force: true }); }

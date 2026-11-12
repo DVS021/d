@@ -8,7 +8,7 @@ const data=context.window.PORTAL_DATA,materials=context.window.PORTAL_MATERIALS;
 
 test('16 concrete work cases retain the existing library and point to published rules',()=>{
  const cases=data.cases.filter(c=>c.applied);
- assert.equal(cases.length,16);assert.equal(data.cases.length,41);
+ assert.equal(cases.length,16);assert.equal(data.cases.length,53);
  assert.equal(new Set(data.cases.map(c=>c.id)).size,data.cases.length);
  for(const c of cases){
   assert.ok(c.choices[c.correct]&&c.clarify.length&&c.steps.length&&c.next&&c.mistake);

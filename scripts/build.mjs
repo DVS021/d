@@ -46,7 +46,7 @@ const materials = await readFile(new URL('assets/materials.js', root), 'utf8');
 const materialsUI = await readFile(new URL('assets/materials-ui.js', root), 'utf8');
 const logo = (await readFile(new URL('assets/rarus-logo.png', root))).toString('base64');
 const trainerFiles = new Map();
-for (const name of ['index.html', 'style.css', 'app.js', 'engine.js', 'data.js', 'audio-map.js']) {
+for (const name of ['index.html', 'style.css', 'app.js', 'engine.js', 'data.js', 'audio-map.js', 'audio-levels.js']) {
   const source = await readFile(new URL('trainer/' + name, root), 'utf8');
   trainerFiles.set(name, source.replace(/\?v=[a-z0-9]+/g, '?v=trainer'));
 }

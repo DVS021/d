@@ -25,3 +25,5 @@
 .case-topic a{display:block;color:#067a9f;font-size:11px;margin-top:6px}.case-topic a[hidden]{display:none}
 
 .case-controls{padding:8px 0 12px;border-bottom:1px solid #eff2f4}@media(max-width:820px){.embedded .dialogue-panel{height:720px;min-height:720px;max-height:720px}}
+
+.audio-player{padding:8px 0 12px}.audio-player[hidden]{display:none}.audio-player span{display:block;font-size:11px;color:#335767;margin-bottom:5px}.audio-player audio{display:block;width:100%;height:38px}.dialogue-panel .messages{flex:1;min-height:130px}

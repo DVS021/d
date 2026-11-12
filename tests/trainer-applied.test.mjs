@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {voiceCases,guidedTurn,voiceText} from '../trainer/engine.js';
 import {audioMap} from '../trainer/audio-map.js';
-test('eight new voice cases have grounded, recorded stories and solutions without keyword grading', async()=>{
- assert.equal(voiceCases.length,8);
+test('all selectable voice cases have grounded, recorded stories and solutions without keyword grading', async()=>{
+ assert.equal(voiceCases.length,14);
  for(const c of voiceCases)for(const action of ['case','case-answer']){
   const reply=guidedTurn({role:'general',action,caseId:c.id});
   assert.ok(reply.speech&&reply.question&&reply.sources.length);
