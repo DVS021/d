@@ -1,4 +1,4 @@
-import { guidedTurn, roles, voiceCases } from './engine.js?v=5bc32411cad5';
+import { guidedTurn, roles, voiceCases } from './engine.js?v=9c1ccb865429';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
@@ -64,7 +64,7 @@ async function say(response) {
   const request = playback;
   if (response.audioUrl) {
     mouthLevels = response.audioLevels ? atob(response.audioLevels) : '';
-    $('audioTitle').textContent = response.stage === 'case' ? 'Условие ситуации' : response.stage === 'review' ? 'Разбор решения' : 'Объяснение тренера';
+    $('audioTitle').textContent = (response.stage === 'case' ? 'Условие ситуации' : response.stage === 'review' ? 'Разбор решения' : 'Объяснение тренера')+' · '+roles[state.role].label;
     $('audioPlayer').hidden = false;
     audio.src = response.audioUrl;
     status('Загружаю запись…');
@@ -95,7 +95,7 @@ $('closeSource').onclick = () => $('sourceDialog').close();
 function message(kind, text, response) {
   const article = document.createElement('article'); article.className = 'message ' + kind;
   const speaker = document.createElement('span'); speaker.className = 'speaker';
-  speaker.textContent = kind === 'user' ? 'ВЫ' : 'ТРЕНЕР'; article.append(speaker);
+  speaker.textContent = kind === 'user' ? 'ВЫ' : response?.stage==='review'?'ТРЕНЕР · РЕШЕНИЕ':'ТРЕНЕР'; article.append(speaker);
   const paragraph = document.createElement('p'); paragraph.textContent = text; article.append(paragraph);
   if (response?.question) {
     const question = document.createElement('p'); question.className = 'question';
@@ -124,7 +124,7 @@ async function turn(action, text = '') {
   try {
     if(action==='case'||action==='case-answer')state.caseMode=true;
     if(action==='intro')state.caseMode=false;
-    const response = guidedTurn({ role: state.role, action, text, caseId:state.caseMode?$('caseTopic').value:'' });
+    const response = guidedTurn({ role: state.role, action, text, caseId:state.caseMode?($('caseTopic').value||'handoff-default'):'' });
     if (text) message('user', text);
     message('tutor', response.speech, response);
     $('connectionStatus').textContent = state.caseMode?'Разбор рабочей ситуации':'Объяснение по материалам уроков';
@@ -133,8 +133,11 @@ async function turn(action, text = '') {
 }
 function chooseRole(role, announce = true) {
   if (!Object.hasOwn(roles, role)) return;
+  const previousTopic=$('caseTopic').value, previousCase=state.caseMode;
   state.request++; stopVoice(true); state.role = role; state.busy = false; state.caseMode=false;
   $('caseTopic').replaceChildren(...[{id:'',title:'Передача запроса по 1С:УАТ'},...voiceCases.filter(c=>role==='general'||c.roles.includes(role))].map(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.title;return o}));
+  const keepCase=previousCase&&[...$('caseTopic').options].some(o=>o.value===previousTopic);
+  if(keepCase)$('caseTopic').value=previousTopic;
   $('casePracticeLink').hidden=true;
   $('audioPlayer').hidden=true;
   $('role').value = role;
@@ -145,6 +148,7 @@ function chooseRole(role, announce = true) {
   $('roleIcon').innerHTML = '<svg viewBox="0 0 24 24">' + roleIcons[role] + '</svg>';
   $('messages').replaceChildren();
   message('tutor', 'Здравствуйте! Ваша роль — ' + profile.label + '. Начнём с короткого объяснения смысла стандартов или разберём рабочую ситуацию.');
+  if(keepCase){updateCaseLink();$('messages').replaceChildren();turn('case');}
   if (embedded) { if (announce) notify('role', { role }); }
   else { try { localStorage.setItem('dvis-role', JSON.stringify(role)); } catch {} }
   resize();

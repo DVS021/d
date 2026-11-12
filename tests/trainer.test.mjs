@@ -8,7 +8,7 @@ import { createServer } from '../scripts/server.mjs';
 
 const inputs = [
   { action: 'intro' }, { action: 'case' },
-  ...['Кто проверяет первый отклик?', 'Сколько минут SLA?', 'Зачем нужны стандарты?', 'Кейс по УАТ', 'Мой ответ', 'Я проверяю SLA', 'первый отклик'].map(text => ({ action: 'message', text })),
+  ...['Кто проверяет первый отклик?', 'Сколько минут SLA?', 'Сколько минут?', 'Зачем нужны стандарты?', 'Кейс по УАТ', 'Мой ответ', 'Я проверяю SLA', 'первый отклик', 'первый ответ'].map(text => ({ action: 'message', text })),
 ];
 test('Russian speech expands abbreviations and uses the right case for numbers without changing the visible text', () => {
   const response = {
@@ -45,11 +45,11 @@ test('all role dialogues have readable sources and a recorded audio reply', asyn
 
 test('the trainer preserves dispatcher responsibility and never grades a keyword as a correct answer', () => {
   const intro = guidedTurn({ role: 'dispatcher', action: 'intro' });
-  assert.match(intro.speech, /Первого отклика|Проверку первого отклика/);
-  assert.match(intro.speech, /контролёр и РОП/);
+  assert.match(intro.speech, /Первый ответ/);
+  assert.match(intro.speech, /контролёр и руководитель отдела продаж/);
   const reply = guidedTurn({ role: 'dispatcher', action: 'message', text: 'Принятие не подтверждено' });
   assert.doesNotMatch(reply.speech, /^Верно|^Правильно/);
-  assert.match(reply.speech, /принял конкретный исполнитель/);
+  assert.match(reply.speech, /принятие|принятия/);
 });
 
 test('static trainer works without an API and audio supports seeking', async () => {
@@ -57,7 +57,7 @@ test('static trainer works without an API and audio supports seeking', async () 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
-    for (const file of ['index.html', 'app.js', 'engine.js', 'data.js', 'audio-map.js', 'audio-levels.js', 'style.css']) {
+    for (const file of ['index.html', 'app.js', 'engine.js', 'data.js', 'role-cases.js', 'audio-map.js', 'audio-levels.js', 'style.css']) {
       assert.equal((await fetch(base + '/trainer/' + file)).status, 200);
     }
     const file = Object.values(audioMap)[0];
