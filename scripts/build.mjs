@@ -36,6 +36,8 @@ const html = sourceHtml.replace(/((?:src|href)="assets\/[^"?]+\.(?:js|css))(?:\?
 const css = await readFile(new URL('assets/styles.css', root), 'utf8');
 const data = await readFile(new URL('assets/data.js', root), 'utf8');
 const app = await readFile(new URL('assets/app.js', root), 'utf8');
+const study = await readFile(new URL('assets/study.js', root), 'utf8');
+const studyUI = await readFile(new URL('assets/study-ui.js', root), 'utf8');
 const tests = await readFile(new URL('assets/tests.js', root), 'utf8');
 const videos = videoCatalogScript(catalog);
 const videoUtils = await readFile(new URL('assets/video-utils.js', root), 'utf8');
@@ -58,7 +60,7 @@ for (const name of (await readdir(new URL('trainer/audio/', root))).sort()) {
 // releases from being combined. Both branch Pages and Actions use these URLs.
 const version = createHash('sha256').update(JSON.stringify([
   html, css, data, app, tests, videos, videoUtils, learning, learningUI,
-  navigation, materials, materialsUI, [...trainerFiles], trainerAudioHashes,
+  navigation, materials, materialsUI, study, studyUI, [...trainerFiles], trainerAudioHashes,
 ])).digest('hex').slice(0, 12);
 const publishedHtml = html.replace(/((?:src|href)="assets\/[^"?]+\.(?:js|css))"/g, `$1?v=${version}"`);
 if (sourceHtml !== publishedHtml) await writeFile(new URL('index.html', root), publishedHtml);
@@ -83,6 +85,8 @@ const standalone = html
   .replace('<script src="assets/materials.js" defer></script>', () => `<script>${materials}</script>`)
   .replace('<script src="assets/materials-ui.js" defer></script>', () => `<script>${materialsUI}</script>`)
   .replace('<script src="assets/navigation.js" defer></script>', () => `<script>${navigation}</script>`)
+  .replace('<script src="assets/study.js" defer></script>', () => `<script>${study}</script>`)
+  .replace('<script src="assets/study-ui.js" defer></script>', () => `<script>${studyUI}</script>`)
   .replace('<script src="assets/app.js" defer></script>', () => trainerBootstrap + `<script>${app}</script>`);
 await writeFile(new URL('dvis-standards.html', out), standalone);
 console.log('Built dist/index.html and standalone dist/dvis-standards.html');

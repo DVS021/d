@@ -1,4 +1,4 @@
-import { guidedTurn, roles, voiceCases } from './engine.js?v=9c1ccb865429';
+import { guidedTurn, roles, voiceCases } from './engine.js?v=779c332f5140';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
@@ -191,9 +191,11 @@ $('chatForm').onsubmit = event => {
 $('messageInput').onkeydown = event => {
   if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); $('chatForm').requestSubmit(); }
 };
+function selectLinkedCase(id){const value=id==='handoff-default'?'':id;if(![...$('caseTopic').options].some(o=>o.value===value))return;if($('caseTopic').value===value&&state.caseMode)return;$('caseTopic').value=value;$('caseTopic').onchange();}
 window.addEventListener('message', event => {
   if (!embedded || event.source !== window.parent || event.origin !== portalOrigin) return;
   if (event.data?.type === 'rarus-portal:stop') stopVoice();
+  if (event.data?.type === 'rarus-portal:case') selectLinkedCase(event.data.caseId);
   if (event.data?.type === 'rarus-portal:role' && event.data.role !== state.role) chooseRole(event.data.role, false);
 });
 window.addEventListener('pagehide', stopVoice);

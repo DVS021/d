@@ -13,6 +13,8 @@ const allowedFiles = new Map([
   ['/assets/data.js', ['assets/data.js', 'text/javascript; charset=utf-8']],
   ['/assets/tests.js', ['assets/tests.js', 'text/javascript; charset=utf-8']],
   ['/assets/app.js', ['assets/app.js', 'text/javascript; charset=utf-8']],
+  ['/assets/study.js', ['assets/study.js', 'text/javascript; charset=utf-8']],
+  ['/assets/study-ui.js', ['assets/study-ui.js', 'text/javascript; charset=utf-8']],
   ['/assets/videos.js', ['assets/videos.js', 'text/javascript; charset=utf-8']],
   ['/assets/video-utils.js', ['assets/video-utils.js', 'text/javascript; charset=utf-8']],
   ['/assets/rarus-logo.png', ['assets/rarus-logo.png', 'image/png']],
