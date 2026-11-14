@@ -32,6 +32,7 @@ test('schemes and self-check are independent menu sections; practice contains ca
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sidebar = [...html.matchAll(/class="side-link[^\"]*" data-nav="([^\"]+)"/g)].map(m => m[1]);
   assert.deepEqual(sidebar, roots);
+  assert.match(html, /class="top-learning" data-nav="study"/);
   for (const [page, parent] of Object.entries({
     'standard/1': 'catalog', 'standard/2/text/std-2-block-006': 'catalog',
     'memo/4': 'catalog', 'memos': 'catalog', 'memo/print': 'catalog',
@@ -39,6 +40,7 @@ test('schemes and self-check are independent menu sections; practice contains ca
     'practice/cases/question/lead-return': 'practice',
     'practice/cases/standard/5': 'practice', 'practice/cases/rule/lead-return': 'practice',
     'memo/5/text/memo-section-9-1': 'catalog',
+    home: 'home', study: 'study', 'study/basics/check': 'study',
     visuals: 'visuals', 'practice/schemes': 'visuals', trainer: 'trainer',
     'quiz/a/review': 'quiz', 'practice/tests/a/review': 'quiz', 'glossary/term-001': 'glossary',
   })) assert.equal(parentRoute(page), parent);

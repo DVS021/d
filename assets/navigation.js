@@ -15,7 +15,7 @@
   }
   function parentRoute(value) {
     const page = canonicalRoute(value).split('/')[0];
-    if(page==='study')return 'home';
+    if(page==='study')return 'study';
     if (['catalog', 'standard', 'memo', 'memos'].includes(page)) return 'catalog';
     if (['practice', 'scenario', 'case', 'video'].includes(page)) return 'practice';
     return ['home', 'visuals', 'trainer', 'quiz', 'glossary', 'control'].includes(page) ? page : null;
