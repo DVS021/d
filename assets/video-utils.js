@@ -38,7 +38,7 @@
       && (!video.captions || /^media\/videos\/[a-z0-9][a-z0-9._-]*\.vtt$/.test(video.captions))
       && (!video.category || typeof video.category === 'string')
       && (!video.takeaways || (Array.isArray(video.takeaways) && video.takeaways.every(t => typeof t === 'string')))
-      && Array.isArray(video.standards) && video.standards.every(n => Number.isInteger(n) && n >= 1 && n <= 18);
+      && Array.isArray(video.standards) && video.standards.every(n => Number.isInteger(n) && n >= 1 && n <= 19);
   }
   function durationLabel(seconds) {
     if (!Number.isFinite(seconds) || seconds <= 0) return '';

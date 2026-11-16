@@ -25,7 +25,7 @@ const info = await stat(source);
 if (!info.isFile() || !info.size) throw new Error('Video must be a non-empty file.');
 if (info.size > 95 * 1024 * 1024) throw new Error('Compress the video below 95 MiB before adding it to this GitHub Pages repository.');
 const standards = values.standards ? values.standards.split(',').map(Number) : [];
-if (standards.some(n => !Number.isInteger(n) || n < 1 || n > 18)) throw new Error('Invalid standard number.');
+if (standards.some(n => !Number.isInteger(n) || n < 1 || n > 19)) throw new Error('Invalid standard number.');
 const duration = values.duration === undefined ? undefined : Number(values.duration);
 if (duration !== undefined && (!Number.isFinite(duration) || duration <= 0)) throw new Error('Duration must be positive seconds.');
 const catalogPath = new URL('assets/videos.js', root);
