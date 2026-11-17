@@ -158,3 +158,7 @@ body{color:var(--ink);background:var(--bg)}
 @media(max-width:1300px){.topbar .breadcrumbs>span:first-child,.topbar .breadcrumbs>.crumb-sep{display:none}.topbar>.top-search kbd{display:none}.topbar .topbar-right{gap:10px}}
 @media(min-width:761px) and (max-width:1300px){.topbar{grid-template-columns:minmax(0,1fr) auto;height:auto;min-height:104px;padding:10px 23px;gap:8px 16px}.topbar .breadcrumbs{grid-column:1;grid-row:1}.topbar .topbar-right{grid-column:2;grid-row:1}.topbar>.top-search{grid-column:1/-1;grid-row:2;max-width:620px}}
 @media(max-width:760px){.topbar{grid-template-columns:30px minmax(0,1fr);height:auto;min-height:104px;padding:10px 16px;gap:8px 12px}.topbar .breadcrumbs{display:none}.topbar #mobile-menu{grid-column:1;grid-row:1}.topbar .topbar-right{grid-column:2;grid-row:1;gap:8px}.topbar>.top-search{grid-column:1/-1;grid-row:2;max-width:620px;font-size:12px}.topbar>.top-search kbd{display:none}}
+
+/* Счётчики на главной ведут в соответствующие разделы. */
+button.stat{width:100%;min-width:0;text-align:left;color:inherit;transition:border-color .15s,box-shadow .15s,transform .15s}button.stat .stat-label,button.stat .stat-value,button.stat .stat-note{display:block}button.stat:hover{border-color:#88bbce;box-shadow:0 8px 22px #006d9612;transform:translateY(-2px)}button.stat:focus-visible{outline:3px solid #e7ad62;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){button.stat{transition:none}button.stat:hover{transform:none}}
