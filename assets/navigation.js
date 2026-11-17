@@ -15,10 +15,11 @@
   }
   function parentRoute(value) {
     const page = canonicalRoute(value).split('/')[0];
-    if(page==='study')return 'study';
-    if (['catalog', 'standard', 'memo', 'memos'].includes(page)) return 'catalog';
-    if (['practice', 'scenario', 'case', 'video'].includes(page)) return 'practice';
-    return ['home', 'visuals', 'trainer', 'quiz', 'glossary', 'control'].includes(page) ? page : null;
+    if(['study','trainer','quiz'].includes(page)||canonicalRoute(value).startsWith('sources/lessons'))return 'study';
+    if (['catalog', 'standard'].includes(page)) return 'catalog';
+    if (['reference','memo','memos','visuals','glossary','sources'].includes(page)) return 'reference';
+    if (['practice', 'scenario', 'case', 'video','answer'].includes(page)) return 'practice';
+    return ['home', 'control'].includes(page) ? page : null;
   }
   window.PORTAL_NAVIGATION = { canonicalRoute, parentRoute };
 })();

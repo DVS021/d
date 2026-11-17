@@ -27,22 +27,22 @@ test('old links preserve full standards, separate memos, schemes, test attempts 
   }
 });
 
-test('schemes and self-check are independent menu sections; practice contains cases and videos', async () => {
-  const roots = ['home', 'catalog', 'visuals', 'practice', 'trainer', 'quiz', 'glossary', 'control'];
+test('four primary entries retain standalone reference and learning pages', async () => {
+  const roots = ['home', 'catalog', 'practice', 'reference', 'control'];
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const sidebar = [...html.matchAll(/class="side-link[^\"]*" data-nav="([^\"]+)"/g)].map(m => m[1]);
   assert.deepEqual(sidebar, roots);
   assert.match(html, /class="top-learning" data-nav="study"/);
   for (const [page, parent] of Object.entries({
     'standard/1': 'catalog', 'standard/2/text/std-2-block-006': 'catalog',
-    'memo/4': 'catalog', 'memos': 'catalog', 'memo/print': 'catalog',
+    'memo/4': 'reference', 'memos': 'reference', 'memo/print': 'reference',
     'scenario/incoming': 'practice', 'case/repeat': 'practice', 'video/duplicates': 'practice',
     'practice/cases/question/lead-return': 'practice',
     'practice/cases/standard/5': 'practice', 'practice/cases/rule/lead-return': 'practice',
-    'memo/5/text/memo-section-9-1': 'catalog',
+    'memo/5/text/memo-section-9-1': 'reference',
     home: 'home', study: 'study', 'study/basics/check': 'study',
-    visuals: 'visuals', 'practice/schemes': 'visuals', trainer: 'trainer',
-    'quiz/a/review': 'quiz', 'practice/tests/a/review': 'quiz', 'glossary/term-001': 'glossary',
+    reference: 'reference', visuals: 'reference', 'practice/schemes': 'reference', trainer: 'study',
+    'quiz/a/review': 'study', 'practice/tests/a/review': 'study', 'glossary/term-001': 'reference', 'sources/lessons/3': 'study', 'answer/lead-return-after-close': 'practice',
   })) assert.equal(parentRoute(page), parent);
   assert.equal(parentRoute('unknown'), null);
 });
