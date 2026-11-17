@@ -1,4 +1,4 @@
-import { guidedTurn, roles, voiceCases } from './engine.js?v=ec2cb9206a90';
+import { guidedTurn, roles, voiceCases } from './engine.js?v=57266d6b05d8';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
