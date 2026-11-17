@@ -188,3 +188,7 @@ button.stat{width:100%;min-width:0;text-align:left;color:inherit;transition:bord
 @media(max-width:760px){.manifest-topic{padding:19px 9px 16px}.manifest-material-list{padding:15px}.manifest-material-list button{padding:13px;gap:10px}.manifest-materials-modal .modal-top h2{font-size:17px}}
 
 .project-intent>p{font-size:14px;line-height:1.85;color:#647f90;max-width:850px;margin:0}.project-intent h2{margin-bottom:10px}
+
+/* Волны стандартов открыты полностью; поиск работает сразу по всем волнам. */
+.catalog-wave{margin:0 0 32px}.catalog-wave-heading{display:flex;align-items:center;gap:14px;margin:0 0 16px;padding:0 0 12px;border-bottom:1px solid #dce8ee}.catalog-wave-heading h2{font-size:21px;line-height:1.4;margin:0;color:#31596b}.catalog-wave-heading>span{font-size:12px;color:#6c8391;background:#edf4f7;border-radius:6px;padding:4px 9px}
+@media(max-width:760px){.catalog-wave{margin-bottom:26px}.catalog-wave-heading h2{font-size:19px}}
