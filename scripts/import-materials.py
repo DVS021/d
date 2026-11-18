@@ -1,4 +1,4 @@
-"""Import the supplied final DOCX standards and Lesson 1 text using stdlib only.
+"""Import supplied DOCX standards and lesson presentation text using stdlib only.
 
 Run after replacing the original files in documents/. The PDF and single cover image are visual exports of the original PPTX.
 """
@@ -138,7 +138,7 @@ def standard(number, source):
 
 
 def lesson(number=1):
-    stem = {1:'lesson-1-why-standards',2:'lesson-2-routing',3:'lesson-3-lead','3-advanced':'lesson-3-lead-advanced'}[number]
+    stem = {1:'lesson-1-why-standards',2:'lesson-2-routing',3:'lesson-3-lead','3-advanced':'lesson-3-lead-advanced',6:'lesson-6-standards-control'}[number]
     with ZipFile(ROOT / f'documents/{stem}.pptx') as archive:
         # Follow presentation relationships, not the order of filenames in ZIP.
         relationships = {r.get('Id'): r.get('Target') for r in
@@ -151,7 +151,7 @@ def lesson(number=1):
             paragraphs = [''.join(t.text or '' for t in p.findall('.//a:t', NS))
                           for p in xml.findall('.//a:p', NS)]
             paragraphs = [p for p in paragraphs if p.strip()]
-            title = paragraphs[0] if i == 1 else next(
+            title = paragraphs[0] if i == 1 or number == 6 else next(
                 (p for p in paragraphs[1:] if not p.isdigit()), paragraphs[0])
             slides.append({'number': i, 'title': title, 'paragraphs': paragraphs,
                            'sourceSlide': name})
@@ -164,6 +164,9 @@ def lesson(number=1):
             result.update(title='Лид и квалификация Лида', subtitle='Стандарт №4 · работа с Лидом и решение по квалификации', label='Урок 3')
             if number == 3:
                 result['listed'] = False
+        if number == 6:
+            result.update(title='Контроль за соблюдением требований стандартов продаж СМБ',
+                          subtitle='Анна Бунова · контроль на фактах и диагностические критерии', label='Урок 6')
         if number == 1:
             result['cover'] = 'media/lessons/lesson-1/slide-01.jpg'
         return result
@@ -171,9 +174,9 @@ def lesson(number=1):
 
 if __name__ == '__main__':
     sources = ['documents/glossary-v2.docx', 'documents/standard-2-v2.docx', 'documents/standard-3-v2.docx', 'documents/standard-4-v2.docx']
-    lessons = [lesson(1), lesson(2), lesson(3), lesson('3-advanced')]
+    lessons = [lesson(1), lesson(2), lesson(3), lesson('3-advanced'), lesson(6)]
     materials = {'standards': [standard(n, source) for n, source in enumerate(sources, 1)],
                  'lesson': lessons[0], 'lessons': lessons}
     serialized = json.dumps(materials, ensure_ascii=False, indent=2).replace('<', '\\u003c')
     (ROOT / 'assets/materials.js').write_text('// Generated from the supplied final originals by scripts/import-materials.py.\nwindow.PORTAL_MATERIALS = ' + serialized + ';\n')
-    print('Imported full standards 1–4 and lesson presentations 1–3')
+    print('Imported full standards 1–4 and lesson presentations 1–3 and 6')

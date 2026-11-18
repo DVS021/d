@@ -114,12 +114,12 @@ for doc in materials['standards']:
 p = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main',
      'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', **a}
 lessons = materials.get('lessons', [materials['lesson']])
-assert [lesson['id'] for lesson in lessons] == ['1', '2', '3', '3-advanced']
+assert [lesson['id'] for lesson in lessons] == ['1', '2', '3', '3-advanced', '6']
 for lesson in lessons:
     with ZipFile(root / lesson['source']) as archive:
         rels = {r.get('Id'): r.get('Target') for r in ET.fromstring(archive.read('ppt/_rels/presentation.xml.rels'))}
         order = ET.fromstring(archive.read('ppt/presentation.xml')).findall('p:sldIdLst/p:sldId', p)
-        assert len(order) == len(lesson['slides']) == 30
+        assert len(order) == len(lesson['slides']) == (7 if lesson['id'] == '6' else 30)
         for item, slide in zip(order, lesson['slides']):
             name = 'ppt/' + rels[item.get('{' + p['r'] + '}id')]
             xml = ET.fromstring(archive.read(name))

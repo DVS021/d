@@ -37,6 +37,7 @@ const allowedFiles = new Map([
   ['/documents/lesson-1-why-standards.pdf', ['documents/lesson-1-why-standards.pdf', 'application/pdf']],
   ['/documents/lesson-2-routing.pptx', ['documents/lesson-2-routing.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']],
   ['/documents/lesson-2-routing.pdf', ['documents/lesson-2-routing.pdf', 'application/pdf']],
+  ['/documents/lesson-6-standards-control.pptx', ['documents/lesson-6-standards-control.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']],
   ['/documents/sales-memos-v2.pptx', ['documents/sales-memos-v2.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation']],
   ['/documents/sales-memos-v2.pdf', ['documents/sales-memos-v2.pdf', 'application/pdf']],
 ]);
