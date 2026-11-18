@@ -197,3 +197,5 @@ button.stat{width:100%;min-width:0;text-align:left;color:inherit;transition:bord
 .project-perspectives{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:22px 0 28px}.project-perspective{padding:24px;border:1px solid #eadfce;border-top:3px solid #e97924;border-radius:12px;background:#fff9f1;min-width:0}.project-perspective-client{border-color:#d5e8ef;border-top-color:#00769d;background:#eef7fb}.project-perspective-label{display:block;font-size:10px;font-weight:700;letter-spacing:.09em;color:#986035;margin-bottom:13px}.project-perspective-client .project-perspective-label{color:#00769d}.project-perspective h2{font-size:23px;line-height:1.5;color:#254f65;margin:0;font-weight:650;letter-spacing:-.015em}.project-perspective p{font-size:13px;line-height:1.85;color:#647f90;margin:14px 0 0}
 @media(max-width:1000px){.project-perspectives{grid-template-columns:1fr;gap:16px}}
 @media(max-width:760px){.project-perspectives{margin:20px 0 24px}.project-perspective{padding:20px}.project-perspective h2{font-size:21px}.project-perspective-label{font-size:9px}}
+
+.lesson-reader-actions{margin:16px 0 22px;display:flex;flex-wrap:wrap;gap:10px}
