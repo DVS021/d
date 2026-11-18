@@ -16,7 +16,7 @@ const referenceNav=id=>MU.standard(id)?'standard/'+id:'memo/'+id;
 const referenceLabel=id=>MU.standard(id)?'№'+id:'Памятка №'+id;
 const normalizeSearch=value=>String(value).toLocaleLowerCase('ru-RU').replace(/ё/g,'е').trim();
 const caseHelpers={repeat:'incoming',handoff:'handoff',many:'duplicate',outbound:'outgoing',sla:'response','duplicate-or-independent':'duplicate','website-first-response':'response'};
-const caseTrainingLabel=c=>c.training?'Урок '+String(c.training.lesson).split('-')[0]+(String(c.training.lesson).includes('advanced')?' · усложнённый':'')+' · кейс '+c.training.caseNumber:'';
+const caseTrainingLabel=c=>c.training?'Урок '+String(c.training.lesson).split('-')[0]+' · кейс '+c.training.caseNumber:'';
 function caseTrainingSource(c){const t=c.training,lesson=t&&window.PORTAL_MATERIALS.lessons.find(l=>String(l.id)===String(t.lesson));return lesson&&!lesson.pdf?button('Разбор · '+caseTrainingLabel(c),'sources/lessons/'+lesson.id+'/'+(t.reviewSlide||t.slide),'secondary small','book'):lesson?`<a class="button secondary small" href="${esc(lesson.pdf)}#page=${t.reviewSlide||t.slide}" target="_blank" rel="noopener">${esc(caseTrainingLabel(c))} ${icon('external')}</a>`:''}
 const {validVideo,durationLabel,parseDriveLink,driveURL}=window.PORTAL_VIDEO_UTILS;
 const videos=(window.PORTAL_VIDEOS||[]).filter(validVideo);
@@ -116,13 +116,13 @@ SU.init({model:study,esc,icon,heading,button,exportLegacy,restoreLegacy,role:()=
 
 function roleTasks(){const profile=roleProfiles[role];return `<section class="role-workspace" aria-label="Рабочие задачи"><div class="section-title"><div><h2>${role==='general'?'Все направления работы':'Задачи: '+esc(profile.label)}</h2><p>${esc(profile.focus)}</p></div></div><div class="role-task-grid">${profile.tasks.map(([title,body,nav])=>`<button class="role-task card" data-nav="${nav}"><strong>${esc(title)}</strong><span>${esc(body)}</span>${icon('arrow')}</button>`).join('')}</div><div class="role-materials"><strong>${role==='general'?'Материалы №1–6':'Приоритетные материалы'}</strong>${showRefs(profile.standards)}</div></section>`}
 const manifestMaterials={
- responsibility:{title:'Сохранять обращение, контекст и ответственность',items:[
+ responsibility:{title:'Определять ответственность за обращение',items:[
   ['Полный стандарт №3','Диспетчеризация и регистрация в ЕИС','standard/3','book'],
   ['Схема','Маршрут входящего обращения','visuals/route-visual','route'],
   ['Памятка №3','Передача обращения и принятие исполнителем','memo/3','clipboard'],
   ['Практика','Когда назначение на группу считается принятием','practice/cases/question/acceptance','puzzle']
  ]},
- response:{title:'Давать ответ и понятный следующий шаг',items:[
+ response:{title:'Отвечать клиенту по существу',items:[
   ['Полный стандарт №2','Единый порядок обработки входящих обращений','standard/2','book'],
   ['Схема','От входящего обращения к дальнейшей работе','visuals/route-visual','route'],
   ['Памятка №2','Входящее обращение и скорость реакции','memo/2','clipboard'],
@@ -134,12 +134,23 @@ const manifestMaterials={
   ['Памятка №6','Исходящие взаимодействия с клиентом','memo/6','clipboard'],
   ['Практика','Когда исходящий контакт становится новой продажей','practice/cases/question/outgoing','puzzle']
  ]},
- facts:{title:'Улучшать работу на основе фактов',items:[
+ facts:{title:'Управлять на фактах',items:[
   ['Полный стандарт №2 · приложение','Правила работы контролёра','standard/2/text/std-2-block-368','book'],
   ['Критерии контроля','Проверки, доказательства и исправление отклонений','control','shield'],
   ['Схема','Стадии Интереса и подтверждение движения','visuals/stages-visual','route'],
   ['Памятки №5','Ведение Интереса и контроль','memo/5','clipboard'],
   ['Практика','Кто исправляет выявленное отклонение','practice/cases/question/controller','puzzle']
+ ]},
+ qualification:{title:'Подтверждать основания для продажи',items:[
+  ['Полный стандарт №4','Лид и квалификация Лида','standard/4','book'],
+  ['Схема','От квалификации Лида к Интересу','visuals/lead-visual','route'],
+  ['Памятка №4','Проверка коммерческого потенциала','memo/4','clipboard'],
+  ['Практика','Когда данных достаточно для квалификации','practice/cases/question/qualification','puzzle']
+ ]},
+ nextStep:{title:'Планировать следующий шаг и срок',items:[
+  ['Схема','Рабочий цикл и следующий шаг','visuals/cycle-visual','route'],
+  ['Памятки №5','Ежедневное ведение Интереса','memo/5','clipboard'],
+  ['Практика','Просрочка и отсутствие следующего шага','practice/cases/question/overdue','puzzle']
  ]}
 };
 function openManifestMaterials(id){const topic=manifestMaterials[id];if(!topic)return;modalTrigger=document.activeElement;$('#overlay-root').innerHTML=`<div class="modal-shade" id="modal-shade"><section class="search-modal manifest-materials-modal" role="dialog" aria-modal="true" aria-labelledby="manifest-materials-title"><div class="modal-top"><h2 id="manifest-materials-title">${esc(topic.title)}</h2><button type="button" class="icon-button" id="modal-close" aria-label="Закрыть подборку">${icon('x')}</button></div><div class="manifest-material-list">${topic.items.map(([kind,title,nav,i])=>`<button type="button" data-nav="${nav}">${icon(i)}<span><small>${esc(kind)}</small><strong>${esc(title)}</strong></span>${icon('arrow')}</button>`).join('')}</div></section></div>`;$('.manifest-material-list button')?.focus();}
@@ -147,7 +158,7 @@ function openManifestMaterials(id){const topic=manifestMaterials[id];if(!topic)r
 function renderHome(){
  const entries=[['practice/cases','Применить в работе','Рабочие ситуации, решения и видеокейсы.','puzzle'],['study','Пройти обучение','Учебный маршрут, уроки, проверки и тренер.','graduation'],['reference','Найти правило и определение','Глоссарий, наглядные схемы и памятки.','layers']];
  return `<section class="portal-intro card"><div class="portal-intro-main"><span class="eyebrow">СТАНДАРТЫ ПРОДАЖ СМБ · 1С-РАРУС</span><h1>Единые правила<br>работы с клиентом</h1><p>Общий порядок обработки обращений, квалификации, ведения продаж и контроля качества для сотрудников СМБ.</p>${button('Открыть стандарты','catalog','primary','book')}</div><aside class="portal-principles" aria-label="Общие принципы стандартов"><h2>Что объединяет стандарты</h2><ul><li>${icon('check')}<span>Сохранять каждое целевое обращение</span></li><li>${icon('check')}<span>Определять ответственного и следующий шаг</span></li><li>${icon('check')}<span>Подтверждать движение сделки фактами</span></li></ul></aside></section>
- <section class="home-project card" aria-labelledby="project-title"><span class="eyebrow">ГЛАВНЫЕ МЫСЛИ ПРОЕКТА</span><div class="project-intent"><h2 id="project-title">Для клиента мы — одна компания</h2><p>Быстрый ответ, сохранённый контекст, понятный следующий шаг и результат — общий минимум надёжной работы с клиентом.</p></div><div class="manifest-principles"><article><button type="button" class="manifest-topic" data-manifest-topic="responsibility"><span class="manifest-principle-icon">${icon('users')}</span><h3>Сохранять обращение, контекст и ответственность</h3><p>История и договорённости сохраняются при передаче, а получатель понимает, какую работу принимает.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="response"><span class="manifest-principle-icon">${icon('phone')}</span><h3>Давать ответ и понятный следующий шаг</h3><p>Клиент понимает, что будет сделано дальше, кто за это отвечает и к какому сроку.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="development"><span class="manifest-principle-icon">${icon('trending')}</span><h3>Развивать действующих клиентов</h3><p>Планировать продления, повторные покупки и работу с новыми потребностями.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="facts"><span class="manifest-principle-icon">${icon('target')}</span><h3>Улучшать работу на основе фактов</h3><p>Разбирать причины отклонений, отличать ошибки от ограничений инструментов и проверять результат исправлений.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article></div></section>
+ <section class="home-project card" aria-labelledby="project-title"><span class="eyebrow">ГЛАВНЫЕ МЫСЛИ ПРОЕКТА</span><div class="project-intent"><h2 id="project-title">То, как мы организуем наши продажи, должно стать преимуществом компании</h2><p><strong>Для клиента мы — одна компания.</strong> Быстрый содержательный ответ, сохранённый контекст, понятный следующий шаг и результат — общий минимум надёжной работы с клиентом.</p></div><div class="manifest-principles"><article><button type="button" class="manifest-topic" data-manifest-topic="responsibility"><span class="manifest-principle-icon">${icon('users')}</span><h3>Определять ответственность за обращение</h3><p>История и договорённости сохраняются при передаче, а получатель понимает, какую работу принимает.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="response"><span class="manifest-principle-icon">${icon('phone')}</span><h3>Отвечать клиенту по существу</h3><p>Клиент своевременно получает помощь в решении вопроса. Подтверждение получения и попытка связи сами по себе не заменяют содержательный ответ.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="development"><span class="manifest-principle-icon">${icon('trending')}</span><h3>Развивать действующих клиентов</h3><p>Планировать продления, повторные покупки и работу с новыми потребностями.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="facts"><span class="manifest-principle-icon">${icon('target')}</span><h3>Управлять на фактах</h3><p>Разбирать причины отклонений, отличать ошибки от ограничений инструментов и проверять результат исправлений.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="qualification"><span class="manifest-principle-icon">${icon('check')}</span><h3>Подтверждать основания для продажи</h3><p>Проверять новый запрос и действующую работу по тому же предмету. Квалификация Лида подтверждает основания для начала продажи.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article><article><button type="button" class="manifest-topic" data-manifest-topic="nextStep"><span class="manifest-principle-icon">${icon('route')}</span><h3>Планировать следующий шаг и срок</h3><p>По каждому активному Интересу понимать, что делать дальше, кто отвечает за действие и к какому сроку оно должно дать результат.</p><span class="manifest-material-label">Материалы по теме ${icon('arrow')}</span></button></article></div></section>
  <section class="portal-entry-section" aria-label="Как использовать сайт"><div class="portal-entries">${entries.map(([nav,title,body,i])=>`<button class="card portal-entry" data-nav="${nav}">${icon(i)}<span><strong>${title}</strong><span>${body}</span></span>${icon('arrow')}</button>`).join('')}</div></section>`;
 }
 

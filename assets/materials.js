@@ -10119,11 +10119,12 @@ window.PORTAL_MATERIALS = {
           "sourceSlide": "ppt/slides/slide30.xml"
         }
       ],
-      "label": "Урок 3"
+      "label": "Урок 3",
+      "listed": false
     },
     {
       "id": "3-advanced",
-      "title": "Лид и квалификация Лида — усложнённые кейсы",
+      "title": "Лид и квалификация Лида",
       "subtitle": "Стандарт №4 · работа с Лидом и решение по квалификации",
       "source": "documents/lesson-3-lead-advanced.pptx",
       "pdf": null,
@@ -10640,7 +10641,7 @@ window.PORTAL_MATERIALS = {
           "sourceSlide": "ppt/slides/slide30.xml"
         }
       ],
-      "label": "Урок 3 · усложнённые кейсы"
+      "label": "Урок 3"
     }
   ]
 };

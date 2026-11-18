@@ -161,7 +161,9 @@ def lesson(number=1):
                   'source': f'documents/{stem}.pptx',
                   'pdf': f'documents/{stem}.pdf' if number in (1,2) else None, 'slides': slides}
         if number in (3, '3-advanced'):
-            result.update(title='Лид и квалификация Лида' + (' — усложнённые кейсы' if number == '3-advanced' else ''), subtitle='Стандарт №4 · работа с Лидом и решение по квалификации', label='Урок 3' + (' · усложнённые кейсы' if number == '3-advanced' else ''))
+            result.update(title='Лид и квалификация Лида', subtitle='Стандарт №4 · работа с Лидом и решение по квалификации', label='Урок 3')
+            if number == 3:
+                result['listed'] = False
         if number == 1:
             result['cover'] = 'media/lessons/lesson-1/slide-01.jpg'
         return result
