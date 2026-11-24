@@ -1,0 +1,30 @@
+name: Assemble one lead qualification video
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/video-transfer/lead-qualification/**'
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble, verify and commit MP4
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="media/videos/lead-qualification-eis.mp4"
+          cat .github/video-transfer/lead-qualification/part_*.b64 | base64 --decode > "$TARGET"
+          printf '%s  %s\n' '299fdbb3db388e1864b22a3345df61113a24532e9a26327c4949574b7962a353' "$TARGET" | sha256sum --check -
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$TARGET"
+          git rm -r -- .github/video-transfer/lead-qualification
+          git rm -- .github/workflows/assemble-lead-qualification.yml
+          git commit -m "Add 3-minute lead qualification case MP4"
+          git push origin HEAD:main
