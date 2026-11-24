@@ -132,5 +132,17 @@ window.PORTAL_VIDEOS = [
     "standards": [
       4
     ]
+  },
+  {
+    "id": "lead-qualification-eis",
+    "title": "Квалификация Лида в ЕИС: результат контакта и дальнейшие действия",
+    "description": "Практическая демонстрация работы с Лидом в ЕИС: взаимодействия, квалификация, фиксация результата и следующего действия.",
+    "category": "Практические видеокейсы",
+    "provider": "file",
+    "src": "media/videos/lead-qualification-eis.mp4",
+    "duration": 195.005,
+    "standards": [
+      4
+    ]
   }
 ];
