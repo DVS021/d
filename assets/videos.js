@@ -108,5 +108,29 @@ window.PORTAL_VIDEOS = [
     "duration": 200.20244897959185,
     "poster": "media/videos/reopen-lead-poster.jpg",
     "standards": []
+  },
+  {
+    "id": "site-incoming-request",
+    "title": "Обработка заявки с сайта через входящие события",
+    "description": "Практический пример работы с заявкой с сайта в ЕИС через «Входящие события».",
+    "category": "Практические видеокейсы",
+    "provider": "file",
+    "src": "media/videos/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0%20%D0%B7%D0%B0%D1%8F%D0%B2%D0%BA%D0%B8%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%20%D0%BF%D0%BE%20%D1%81%D1%82%D0%B0%D0%BD%D0%B4%D0%B0%D1%80%D1%82%D0%B0%D0%BC%20%D0%A1%D0%9C%D0%91.mp4",
+    "standards": [
+      2,
+      3
+    ]
+  },
+  {
+    "id": "two-interests-one-lead",
+    "title": "Два Интереса из одного Лида",
+    "description": "Практический кейс по работе с двумя Интересами, возникающими из одного Лида.",
+    "category": "Практические видеокейсы",
+    "provider": "file",
+    "src": "media/videos/2%20%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%B5%D1%81%D0%B0%20%D0%B8%D0%B7%201%20%D0%9B%D0%B8%D0%B4%D0%B0.mp4",
+    "duration": 487,
+    "standards": [
+      4
+    ]
   }
 ];
