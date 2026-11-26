@@ -452,7 +452,9 @@ window.PORTAL_DATA = (() => {
       "history",
       "controller"
     ],
-    "videoIds": []
+    "videoIds": [
+      "lead-qualification-eis"
+    ]
   },
   {
     "number": "003",
@@ -515,7 +517,9 @@ window.PORTAL_DATA = (() => {
       "lead-to-interest",
       "subject"
     ],
-    "videoIds": []
+    "videoIds": [
+      "two-interests-one-lead"
+    ]
   },
   {
     "number": "009",
@@ -559,7 +563,8 @@ window.PORTAL_DATA = (() => {
       "first-response"
     ],
     "videoIds": [
-      "sla-check"
+      "sla-check",
+      "site-incoming-request"
     ]
   },
   {
