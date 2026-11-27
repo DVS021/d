@@ -69,7 +69,7 @@ try {
   const manifest = join(temporary, 'manifest.json'); await writeFile(manifest, JSON.stringify(items));
   if(values.engine==='owner'){
     const baseManifest=join(temporary,'base-manifest.json');const missing=[];for(const item of items){try{if((await stat(item.baseFile)).size>1000)continue;}catch{}missing.push({...item,file:item.baseFile});}await writeFile(baseManifest,JSON.stringify(missing));
-    if(missing.length)await run(values['base-python'],[join(root,'scripts/synthesize-trainer.py'),'--model',resolve(values['base-model']),'--manifest',baseManifest],true);
+    if(missing.length)await Promise.all(Array.from({length:workers},(_,worker)=>run(values['base-python'],[join(root,'scripts/synthesize-trainer.py'),'--model',resolve(values['base-model']),'--manifest',baseManifest,'--worker-count',String(workers),'--worker-index',String(worker),'--threads',String(threads)],true)));
   }
   if(values.engine==='owner')await Promise.all(Array.from({length:workers},(_,worker)=>run(values.python,[join(root,'scripts/synthesize-owner-voice.py'),'--model',model,'--manifest',manifest,'--reference',resolve(values.reference),'--work-dir',join(temporary,'chunks'),'--worker-count',String(workers),'--worker-index',String(worker),'--threads',String(threads)],true)));
   else await run(values.python,[join(root,'scripts/synthesize-trainer.py'),'--model',model,'--manifest',manifest],true);

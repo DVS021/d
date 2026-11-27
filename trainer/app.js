@@ -1,4 +1,4 @@
-import { guidedTurn, roles, voiceCases } from './engine.js?v=8609d1db1e2c';
+import { guidedTurn, roles, voiceCases, voiceCaseTopics } from './engine.js?v=b96f62099712';
 
 const $ = id => document.getElementById(id);
 const audio = $('speechAudio'), scene = $('avatarScene');
@@ -86,7 +86,7 @@ function showSource(source) {
   link.hidden = !source.url;
   if (source.url) {
     link.href = source.url;
-    link.textContent = source.url.includes('#standard/') ? 'Открыть правило ↗' : 'Открыть слайд ↗';
+    link.textContent = /#(?:standard|memo|practice)\//.test(source.url) ? 'Открыть правило ↗' : 'Открыть слайд ↗';
   }
   else link.removeAttribute('href');
   $('sourceDialog').showModal();
@@ -135,7 +135,9 @@ function chooseRole(role, announce = true) {
   if (!Object.hasOwn(roles, role)) return;
   const previousTopic=$('caseTopic').value, previousCase=state.caseMode;
   state.request++; stopVoice(true); state.role = role; state.busy = false; state.caseMode=false;
-  $('caseTopic').replaceChildren(...[{id:'',title:'Передача запроса по 1С:УАТ'},...voiceCases.filter(c=>role==='general'||c.roles.includes(role))].map(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.title;return o}));
+  const defaultOption=document.createElement('option');defaultOption.value='';defaultOption.textContent='Учебный пример: передача запроса по 1С:УАТ';
+  const groups=voiceCaseTopics.map(topic=>{const entries=topic.caseIds.map(id=>voiceCases.find(c=>c.id===id)).filter(c=>c&&(role==='general'||c.roles.includes(role)));if(!entries.length)return null;const group=document.createElement('optgroup');group.label=topic.title;for(const entry of entries){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.title;group.append(option)}return group}).filter(Boolean);
+  $('caseTopic').replaceChildren(defaultOption,...groups);
   const keepCase=previousCase&&[...$('caseTopic').options].some(o=>o.value===previousTopic);
   if(keepCase)$('caseTopic').value=previousTopic;
   $('casePracticeLink').hidden=true;

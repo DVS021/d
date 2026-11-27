@@ -1,8 +1,8 @@
-import { roles, sources, voiceCases } from './data.js?v=8609d1db1e2c';
-import { audioMap } from './audio-map.js?v=8609d1db1e2c';
-import { audioLevels } from './audio-levels.js?v=8609d1db1e2c';
-import { roleCaseViews } from './role-cases.js?v=8609d1db1e2c';
-export { roles, sources, voiceCases };
+import { roles, sources, voiceCases, voiceCaseTopics } from './data.js?v=b96f62099712';
+import { audioMap } from './audio-map.js?v=b96f62099712';
+import { audioLevels } from './audio-levels.js?v=b96f62099712';
+import { roleCaseViews } from './role-cases.js?v=b96f62099712';
+export { roles, sources, voiceCases, voiceCaseTopics };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);
 function portalURL(reference){
@@ -104,7 +104,7 @@ export function guidedTurn({role,action,text='',caseId=''}){
  if(action==='voice-preview')return result(role,'Здравствуйте. Сегодня разберём, как квалифицировать Лид и не потерять запрос клиента.','',['lesson-1-slide-02'],'preview');
  const topic=voiceCases.find(c=>c.id===caseId);
  const t=text.toLocaleLowerCase('ru-RU').replace(/ё/g,'е');
- if(role==='dispatcher'&&action==='message'&&/^(сколько|какой норматив|каков норматив)/.test(t))return result(role,roleExplanations.dispatcher.timing,'Как вы определите применимый норматив?',['lesson-1-slide-05','confirmed-role-policy']);
+ if(role==='dispatcher'&&action==='message'&&/^(сколько|какой норматив|каков норматив)/.test(t)&&(!topic||/(отклик|sla|сла|первый ответ)/.test(t)))return result(role,roleExplanations.dispatcher.timing,'Как вы определите применимый норматив?',['lesson-1-slide-05','confirmed-role-policy']);
  if(role==='dispatcher'&&action==='message'&&/(отклик|sla|сла|первый ответ)/.test(t))return result(role,roleExplanations.dispatcher.response,'Кто конкретно принял обращение?',['confirmed-role-policy','lesson-2-slide-18']);
  if(topic&&['case','case-answer','message'].includes(action))return caseResult(role,topic,action);
  if(caseId==='handoff-default'&&['case','case-answer','message'].includes(action))return caseResult(role,null,action);
