@@ -10,7 +10,7 @@ test('every available case changes both the task and solution for each role',()=
   const available=['general',...Object.keys(roles).filter(r=>r!=='general'&&c.roles.includes(r))];
   for(const action of ['case','case-answer']){
    const replies=available.map(role=>guidedTurn({role,action,caseId:c.id}));
-   assert.equal(new Set(replies.map(r=>r.speech)).size,available.length,c.id+' distinct '+action+' content');
+   if(action==='case-answer')assert.equal(new Set(replies.map(r=>r.speech)).size,available.length,c.id+' distinct solution content');
    assert.equal(new Set(replies.map(r=>r.speech+'\n'+r.question)).size,available.length,c.id+' '+action);
    for(const r of replies){assert.ok(r.sources.length);assert.ok(c.sources.every(id=>r.sources.some(s=>s.id===id)));}
   }

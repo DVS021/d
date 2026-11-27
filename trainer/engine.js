@@ -1,7 +1,7 @@
-import { roles, sources, voiceCases, voiceCaseTopics } from './data.js?v=b96f62099712';
-import { audioMap } from './audio-map.js?v=b96f62099712';
-import { audioLevels } from './audio-levels.js?v=b96f62099712';
-import { roleCaseViews } from './role-cases.js?v=b96f62099712';
+import { roles, sources, voiceCases, voiceCaseTopics } from './data.js?v=e5e9d93ece1c';
+import { audioMap } from './audio-map.js?v=e5e9d93ece1c';
+import { audioLevels } from './audio-levels.js?v=e5e9d93ece1c';
+import { roleCaseViews } from './role-cases.js?v=e5e9d93ece1c';
 export { roles, sources, voiceCases, voiceCaseTopics };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);
