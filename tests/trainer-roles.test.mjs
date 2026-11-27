@@ -12,7 +12,7 @@ test('every available case changes both the task and solution for each role',()=
    const replies=available.map(role=>guidedTurn({role,action,caseId:c.id}));
    if(action==='case-answer')assert.equal(new Set(replies.map(r=>r.speech)).size,available.length,c.id+' distinct solution content');
    assert.equal(new Set(replies.map(r=>r.speech+'\n'+r.question)).size,available.length,c.id+' '+action);
-   for(const r of replies){assert.ok(r.sources.length);assert.ok(c.sources.every(id=>r.sources.some(s=>s.id===id)));}
+   for(const r of replies){assert.equal(Boolean(r.question),action==='case');assert.ok(r.sources.length);assert.ok(c.sources.every(id=>r.sources.some(s=>s.id===id)));}
   }
   for(const role of c.roles)assert.ok(roleCaseViews[c.id][role],c.id+'/'+role);
  }

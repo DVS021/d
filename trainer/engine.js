@@ -1,7 +1,7 @@
-import { roles, sources, voiceCases, voiceCaseTopics } from './data.js?v=e5e9d93ece1c';
-import { audioMap } from './audio-map.js?v=e5e9d93ece1c';
-import { audioLevels } from './audio-levels.js?v=e5e9d93ece1c';
-import { roleCaseViews } from './role-cases.js?v=e5e9d93ece1c';
+import { roles, sources, voiceCases, voiceCaseTopics } from './data.js?v=7713e8b264c8';
+import { audioMap } from './audio-map.js?v=7713e8b264c8';
+import { audioLevels } from './audio-levels.js?v=7713e8b264c8';
+import { roleCaseViews } from './role-cases.js?v=7713e8b264c8';
 export { roles, sources, voiceCases, voiceCaseTopics };
 const byId = new Map(sources.map(source => [source.id, source]));
 const portalBase = new URL('../', import.meta.url);
@@ -66,7 +66,7 @@ function caseResult(role, topic, action) {
  const policy=['controller','manager','dispatcher'].includes(role)?['lesson-2-slide-18','confirmed-role-policy']:[];
  if(!v&&role!=='general')throw new Error('Missing role case view: '+id+'/'+role);
  if(action==='case')return result(role,v?.situation||topic.question,v?.prompt||topic.prompt||'Как вы поступите в этой ситуации?',[...ids,...policy],'case');
- return result(role,v?.answer||(topic.answer+' '+(topic.recordLabel||'Важно сохранить')+': '+topic.record),v?.question||'Какой шаг важно не пропустить?',[...ids,...policy],'review');
+ return result(role,v?.answer||(topic.answer+' '+(topic.recordLabel||'Важно сохранить')+': '+topic.record),'',[...ids,...policy],'review');
 }
 const roleExplanations={
  employee: {

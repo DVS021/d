@@ -22,14 +22,13 @@ function sourceFor(id){const rule=d.practiceRules[id];if(!rule)throw new Error('
 const additions=[],views={},newSources=new Map();
 const perspective={employee:'',dispatcher:'Вы отвечаете за маршрут и принятие обращения.',controller:'Вы проверяете записи и подтверждения.',manager:'Вы разбираете работу команды.'};
 const prompts={employee:'Что вы сделаете сейчас?',dispatcher:'Как сохранить запрос и подтвердить принятие?',controller:'Какие факты нужно сопоставить?',manager:'Какое действие вы поручите и как проверите результат?'};
-const reflection={employee:'Какой результат и следующий шаг вы сохраните?',dispatcher:'Кто должен подтвердить принятие запроса?',controller:'Что подтвердит ваш вывод?',manager:'По какому факту вы примете выполненную работу?'};
 for(const c of d.cases){
  for(const id of c.ruleIds){const source=sourceFor(id);if(byId.has(id)||!newSources.has(id))newSources.set(id,source)}
  if(existingIds.has(c.id))continue;
  const speech=content[c.id];if(!speech)throw new Error('Review speech for '+c.id);
  additions.push({id:c.id,title:c.title,question:speech.facts,prompt:'Как правильно продолжить работу?',answer:speech.principle,record:speech.record,recordLabel:'Важно сохранить',sources:c.ruleIds,caseUrl:'index.html#case/'+c.id,roles:c.roles});
  views[c.id]={};
- for(const role of c.roles){if(!speech[role])throw new Error('Missing role task '+c.id+'/'+role);views[c.id][role]={situation:[c.id==='repeat'&&role==='employee'?'Вы продолжаете работу с клиентом.':perspective[role],speech.facts].filter(Boolean).join(' '),prompt:prompts[role],answer:speech[role],question:reflection[role]}}
+ for(const role of c.roles){if(!speech[role])throw new Error('Missing role task '+c.id+'/'+role);views[c.id][role]={situation:[c.id==='repeat'&&role==='employee'?'Вы продолжаете работу с клиентом.':perspective[role],speech.facts].filter(Boolean).join(' '),prompt:prompts[role],answer:speech[role]}}
 }
 const unused=Object.keys(content).filter(id=>!additions.some(c=>c.id===id));if(unused.length)throw new Error('Unexpected curated entries: '+unused.join(','));
 const topics=d.practiceTopics.map(t=>({id:t.id,title:t.title,caseIds:t.caseIds}));

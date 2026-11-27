@@ -34,7 +34,8 @@ test('all role dialogues have readable sources and a recorded audio reply', asyn
   for (const role of Object.keys(roles)) for (const input of inputs) {
     const reply = guidedTurn({ role, ...input });
     assert.equal(reply.mode, 'guided');
-    assert.ok(reply.speech && reply.question && reply.sources.length);
+    assert.ok(reply.speech && reply.sources.length);
+    assert.equal(Boolean(reply.question), reply.stage !== 'review');
     for (const source of reply.sources) assert.ok(validSources.has(source.id) && source.text);
     const file = audioMap[voiceText(reply)];
     assert.match(file, /^audio\/[a-f0-9]{16}\.mp3$/);

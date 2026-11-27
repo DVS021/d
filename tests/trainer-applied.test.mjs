@@ -9,7 +9,8 @@ test('all selectable voice cases have grounded, recorded stories and solutions w
  assert.deepEqual(voiceCases.map(c=>c.id).sort(),Array.from(context.window.PORTAL_DATA.cases,c=>c.id).sort());
  for(const c of voiceCases)for(const action of ['case','case-answer']){
   const reply=guidedTurn({role:'general',action,caseId:c.id});
-  assert.ok(reply.speech&&reply.question&&reply.sources.length);
+  assert.ok(reply.speech&&reply.sources.length);
+  assert.equal(Boolean(reply.question),action==='case');
   assert.ok(reply.sources.every(s=>s.url&&/#(?:standard|memo|practice)\//.test(s.url)));
   const path=audioMap[voiceText(reply)];assert.match(path,/^audio\/[a-f0-9]{16}\.mp3$/);
   assert.ok((await readFile(new URL('../trainer/'+path,import.meta.url))).length>1000);
