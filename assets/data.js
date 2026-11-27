@@ -2364,3 +2364,114 @@ window.PORTAL_DATA = (() => {
 }];
  for(const[id,caseIds]of Object.entries({"stage": ["quote-ready-not-sent", "sale-subject-changed-after-discovery"], "revenue": ["manager-review-interest-funnel"], "quality": ["invoice-agreed-not-paid", "paid-but-interest-not-finished", "manager-review-interest-funnel"], "finish": ["interest-customer-not-answering", "customer-refusal-interest-outcome", "paid-but-interest-not-finished"], "plans": ["paid-but-interest-not-finished"], "duplicates": ["sale-subject-changed-after-discovery"]})){const question=d.workQuestions.find(q=>q.id===id);for(const caseId of caseIds)if(!question.caseIds.includes(caseId))question.caseIds.push(caseId);}
 })();
+
+/* Основная тема каждого кейса: одна карточка — одно место в общем списке. */
+window.PORTAL_DATA.practiceTopics=[
+  {
+    "id": "incoming",
+    "title": "Обращения и первый отклик",
+    "description": "Первый ответ, повторные обращения и регистрация запроса.",
+    "icon": "phone",
+    "caseIds": [
+      "repeat",
+      "sla",
+      "training-call-interrupted",
+      "training-unclear-email",
+      "website-first-response",
+      "request-two-channels",
+      "ongoing-project-no-new-lead",
+      "consultation-contract-scope"
+    ]
+  },
+  {
+    "id": "handoff",
+    "title": "Передача и ответственность",
+    "description": "Маршрут обращения, передача контекста и принятие исполнителем.",
+    "icon": "route",
+    "caseIds": [
+      "handoff",
+      "training-handoff-context",
+      "lead-lesson3-0-3",
+      "transfer-no-acceptance-deadline",
+      "dispatcher-acceptance-versus-response",
+      "office-without-dispatcher",
+      "combined-roles-first-assignment",
+      "unclear-request-route-owner",
+      "automatic-route-no-acceptance"
+    ]
+  },
+  {
+    "id": "leads",
+    "title": "Лид и квалификация",
+    "description": "Новая потребность, квалификация, отклонение и возврат к работе.",
+    "icon": "filter",
+    "caseIds": [
+      "many",
+      "outbound",
+      "training-branch-licenses",
+      "lead-return-after-close",
+      "interest-without-lead",
+      "lead-lesson3-0-1",
+      "lead-lesson3-0-2",
+      "lead-lesson3-1-1",
+      "lead-lesson3-1-2",
+      "lead-lesson3-1-3",
+      "two-entities-license-purchase",
+      "consultation-becomes-new-sale",
+      "head-office-project-or-branch-purchase",
+      "two-independent-results-one-request",
+      "invoice-ready-qualification",
+      "budget-unknown-next-step",
+      "old-sale-closed-new-need",
+      "existing-client-new-crm",
+      "duplicate-found-during-qualification",
+      "reject-after-one-attempt",
+      "unknown-decision-maker",
+      "reject-wrong-competence-review",
+      "customer-refusal-before-qualification",
+      "lead-deadline-not-reset",
+      "new-demand-after-correct-completion"
+    ]
+  },
+  {
+    "id": "interests",
+    "title": "Интерес и ведение сделки",
+    "description": "Предмет продажи, стадии, КП, выручка, оплата и завершение.",
+    "icon": "trending",
+    "caseIds": [
+      "stage",
+      "result",
+      "training-quote-and-invoice",
+      "overdue-reschedule",
+      "revenue-versus-quote",
+      "duplicate-or-independent",
+      "completion-versus-history",
+      "two-bills-one-purchase",
+      "consultation-with-existing-interest",
+      "quote-to-invoice-same-subject",
+      "several-items-one-solution",
+      "payer-changed-without-new-need",
+      "customer-refusal-after-qualification",
+      "quote-ready-not-sent",
+      "invoice-agreed-not-paid",
+      "interest-customer-not-answering",
+      "paid-but-interest-not-finished",
+      "sale-subject-changed-after-discovery",
+      "customer-refusal-interest-outcome"
+    ],
+    "collectionIds": [
+      "interest-work"
+    ]
+  },
+  {
+    "id": "control",
+    "title": "Контроль и разбор отклонений",
+    "description": "Проверка фактов, исправление замечаний и решения руководителя.",
+    "icon": "shield",
+    "caseIds": [
+      "messenger-contact-not-recorded",
+      "correction-needs-recheck",
+      "manager-review-interest-funnel"
+    ]
+  }
+];
