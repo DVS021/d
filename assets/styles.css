@@ -199,3 +199,7 @@ button.stat{width:100%;min-width:0;text-align:left;color:inherit;transition:bord
 @media(max-width:760px){.project-perspectives{margin:20px 0 24px}.project-perspective{padding:20px}.project-perspective h2{font-size:21px}.project-perspective-label{font-size:9px}}
 
 .lesson-reader-actions{margin:16px 0 22px;display:flex;flex-wrap:wrap;gap:10px}
+
+/* Тематическая подборка внутри практики. */
+.practice-collection{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:18px 0 24px;padding:24px;background:#f0f8fb;border:1px solid #d2e6ee}.practice-collection h2{font-size:20px;line-height:1.45;margin:0 0 8px;color:#31596b}.practice-collection p{font-size:13px;line-height:1.8;color:#6c8391;margin:0;max-width:740px}.practice-collection>.button{flex-shrink:0}.case-collection-links{margin:20px 0;display:flex;flex-wrap:wrap}.case-collection-links .button{white-space:normal;text-align:left}
+@media(max-width:760px){.practice-collection{align-items:flex-start;flex-direction:column;padding:20px;gap:16px}.practice-collection h2{font-size:19px}}
